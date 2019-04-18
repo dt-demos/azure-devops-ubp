@@ -2,6 +2,8 @@ var port = process.env.PORT || 8080,
     http = require('http'),
     fs = require('fs'),
 	os = require('os'),
+	path = require('path'),
+	urlModule = require('url'),
 	dttags = process.env.DT_TAGS || "<EMPTY>",
 	dtcustprops = process.env.DT_CUSTOM_PROP || "<EMPTY>",
 	dtclusterid = process.env.DT_CLUSTER_ID || "<EMPTY>",
@@ -109,6 +111,31 @@ function sleep(time) {
 // This is our main HttpServer Handler
 // ======================================================================
 var server = http.createServer(function (req, res) {
+
+	// debugging
+	//console.log(`${req.method} ${req.url}`);
+	// parse URL
+	const parsedUrl = urlModule.parse(req.url);
+	// extract URL path
+	let pathname = `.${parsedUrl.pathname}`;
+	// based on the URL path, extract the file extention. e.g. .js, .doc, ...
+	const extName = path.parse(pathname).ext;
+	// mimeMaps file extention to MIME types
+	const mimeMap = {
+	  '.ico': 'image/x-icon',
+	  '.html': 'text/html',
+	  '.js': 'text/javascript',
+	  '.json': 'application/json',
+	  '.css': 'text/css',
+	  '.png': 'image/png',
+	  '.jpg': 'image/jpeg',
+	  '.wav': 'audio/wav',
+	  '.mp3': 'audio/mpeg',
+	  '.svg': 'image/svg+xml',
+	  '.pdf': 'application/pdf',
+	  '.doc': 'application/msword'
+	};
+
     if (req.method === 'POST') {
         var body = '';
 
@@ -223,6 +250,20 @@ var server = http.createServer(function (req, res) {
 		   res.write(status);
 		   res.end();
 		}
+	}
+	else if (typeof mimeMap[extName] !== 'undefined')
+	{
+		// read file from file system
+		fs.readFile(pathname, function(err, data){
+			if(err){
+				res.statusCode = 500;
+				res.end(`Error getting the file: ${err}.`);
+			} else {
+				// if the file is found, set Content-type and send data
+				res.setHeader('Content-type', mimeMap[extName] || 'text/plain' );
+				res.end(data);
+			}
+		})
 	}
 	else
 	{
