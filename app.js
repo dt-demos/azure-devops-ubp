@@ -9,11 +9,10 @@ var port = process.env.PORT || 8080,
 	dtclusterid = process.env.DT_CLUSTER_ID || "<EMPTY>",
     html = fs.readFileSync(__dirname + '/index.html').toString().replace("HOSTNAME", os.hostname() + " with DT_TAGS=" + dttags + "\nDT_CUSTOM_PROP=" + dtcustprops + "\nDT_CLUSTER_ID=" + dtclusterid);
 
-
 // ======================================================================
 // Here are some global config entries that change the behavior of the app
 // ======================================================================
-var buildNumber = 1;
+var problemNumber = 1;
 var minSleep = 500;
 var requestCount = 0;
 var inProduction = false;
@@ -23,29 +22,33 @@ var failInvokeRequestPercentage = 0;
 // ======================================================================
 // does some init checks and sets variables!
 // ======================================================================
-var init = function(newBuildNumber) {
+var init = function(newProblemNumber) {
 	// CHECK IF WE ARE RUNNING "In Production"
 	inProduction = process.env.DEPLOYMENT_GROUP_NAME && process.env.DEPLOYMENT_GROUP_NAME.startsWith("Production");
 	
 	if(inProduction) {
+		environmentName = "Production";
 		minSleep = 300; // we just simulate that production is a bit faster than staging, e.g: better hardware!
 	}
+	else {
+		environmentName = "Staging";
+	}
 
-	// here are some "problems" we simulate for different builds. Builds are identified via Env Variable BUILD_NUMBER;
-	// Build # | Problem
+	// here are some "problems" we simulate for different problems. Problems are identified via Env Variable PROBLEM_NUMBER;
+	// problem # | Problem
 	// 1 | no problem
 	// 2 | 50% of requests return HTTP 500 Status Code
 	// 3 | back to normal
 	// 4 | no problem in staging but problem in prod -> higher sleep time and 10% of requests fail
-	// X | any other build number will run like 1 & 3
-	if(newBuildNumber != null) {
-		buildNumber = parseInt(newBuildNumber);
+	// X | any other problem number will run like 1 & 3
+	if(newProblemNumber != null) {
+		problemNumber = parseInt(newProblemNumber);
 	}
-	else if(process.env.BUILD_NUMBER && process.env.BUILD_NUMBER != null) {
-		buildNumber = parseInt(process.env.BUILD_NUMBER);
+	else if(process.env.PROBLEM_NUMBER && process.env.PROBLEM_NUMBER != null) {
+		problemNumber = parseInt(process.env.PROBLEM_NUMBER);
     }
 
-	switch(buildNumber) {
+	switch(problemNumber) {
 		case 2:
 			failInvokeRequestPercentage = 2;
 			break;
@@ -61,20 +64,19 @@ var init = function(newBuildNumber) {
 			break;
 	}
 
-	console.log("Init: " + buildNumber + "/" + failInvokeRequestPercentage);
+	console.log("Init: " + problemNumber + "/" + failInvokeRequestPercentage);
 } 
 
 // ======================================================================
-// Background colors for our app depending on the build
+// Background colors for our app depending on the problem
 // ======================================================================
 var backgroundColors = ["#EEA53E", "#73A53E", "#FF0000", "#FFFF00", "#777777"]
 var getBackgroundColor = function() {
-	var buildNumberForBackgroundColor = buildNumber;
-	if(buildNumber == 0 || buildNumber > 4) buildNumberForBackgroundColor = 1;
+	var problemNumberForBackgroundColor = problemNumber;
+	if(problemNumber == 0 || problemNumber > 4) problemNumberForBackgroundColor = 1;
 	
-	return backgroundColors[buildNumberForBackgroundColor];
+	return backgroundColors[problemNumberForBackgroundColor];
 }
-
 
 // ======================================================================
 // This is for logging
@@ -227,18 +229,21 @@ var server = http.createServer(function (req, res) {
 				})
 			});
 		}
-		if(url.pathname === "/api/version") {
-			if (url.query["newBuildNumber"] && url.query["newBuildNumber"] != null) {
-				var newBuildNumber = url.query["newBuildNumber"];
-				log(SEVERITY_WARNING, "Somebody is changing! buildNumber from " + buildNumber + " to " + newBuildNumber);
+		// usage: /api/problem
+		// simply returns the problem number as defined in PROBLEM_NUMBER env-variable which is specified
+		// Usage: /api/problem?newProblemNumber=1
+		// to fake out the problem number
+		if(url.pathname === "/api/problem") {
+			if (url.query["newProblemNumber"] && url.query["newProblemNumber"] != null) {
+				var newProblemNumber = url.query["newProblemNumber"];
+				log(SEVERITY_WARNING, "Somebody is changing! problemNumber from " + problemNumber + " to " + newProblemNumber);
 
-				init(newBuildNumber);
+				init(newProblemNumber);
 			}
-
-			// usage: /api/version
-			// simply returns the build number as defined in BUILD_NUMBER env-variable which is specified
-			status = "Running build number: " + buildNumber;
+			status = "Running problem number: " + problemNumber;
 		}
+
+		// usage: /api/causeerror
 		if(url.pathname === "/api/causeerror") {
 			log(SEVERITY_ERROR, "somebody called /api/causeerror");
 			status = "We just caused an error log entry"
@@ -269,8 +274,8 @@ var server = http.createServer(function (req, res) {
 	{
 		res.writeHead(200, 'OK', {'Content-Type': 'text/html'});
 
-		// replace buildnumber and background color
-		var finalHtml = html.replace("BACKGROUND-COLOR", getBackgroundColor()).replace("BUILD_NUMBER", buildNumber);
+		// replace problemNumber and background color
+		var finalHtml = html.replace("BACKGROUND-COLOR", getBackgroundColor()).replace("PROBLEM_NUMBER", problemNumber).replace("ENVIRONMENT_NAME", environmentName);
         res.write(finalHtml);
         res.end();
 	}
