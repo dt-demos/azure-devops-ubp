@@ -1,0 +1,68 @@
+{
+    "resources": [
+        {
+            "apiVersion": "2016-03-01",
+            "name": "[parameters('name')]",
+            "type": "Microsoft.Web/sites",
+            "properties": {
+                "name": "[parameters('name')]",
+                "siteConfig": {
+                    "appSettings": [
+                        { "Name": "DT_TENANT", "Value": "[parameters('dynatrace-environment-id')]" },
+                        { "Name": "DT_API_TOKEN", "Value": "[parameters('dynatrace-paas-token')]" },
+                        { "Name": "DT_API_URL", "Value": "[parameters('dynatrace-api-url')]" },
+                        { "Name": "WEBSITE_NODE_DEFAULT_VERSION", "Value": "[parameters('website-node-default-version')]"}
+                      ]
+                },
+                "serverFarmId": "[concat('/subscriptions/', parameters('subscriptionId'),'/resourcegroups/', parameters('serverFarmResourceGroup'), '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
+                "hostingEnvironment": "[parameters('hostingEnvironment')]"
+            },
+            "location": "[parameters('location')]",
+            "resources": [
+                {
+                    "apiVersion": "2016-08-01",
+                    "name": "Dynatrace",
+                    "type": "siteextensions",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', parameters('name'))]"
+                    ],
+                    "properties": { }
+                }
+            ]
+        }
+    ],
+    "parameters": {
+        "name": {
+            "type": "string"
+        },
+        "hostingPlanName": {
+            "type": "string"
+        },
+        "location": {
+            "type": "string"
+        },
+        "hostingEnvironment": {
+            "type": "string"
+        },
+        "serverFarmResourceGroup": {
+            "type": "string"
+        },
+        "subscriptionId": {
+            "type": "string"
+        },
+        "dynatrace-environment-id": {
+            "type": "string"
+        },
+        "dynatrace-paas-token": {
+            "type": "string"
+        },
+        "dynatrace-api-url": {
+            "type": "string"
+        },
+        "website-node-default-version": {
+            "type": "string"
+        }
+    },
+    "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0"
+}
