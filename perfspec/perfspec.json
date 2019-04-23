@@ -1,46 +1,42 @@
 {
-	"timeStart": 1555891200,
-	"timeEnd": 1556064000,
-	"perfSpec": {
-		"spec_version": "1.0",
-		"indicators": [{
-			"id": "P90_ResponseTime",
-			"source": "Dynatrace",
-			"query": {
-				"timeseriesId": "com.dynatrace.builtin:service.responsetime",
-				"aggregation": "p90"
-			},
-			"grading": {
-				"type": "Threshold",
-				"thresholds": {
-					"upperSevere": 1000000,
-					"upperWarning": 500000,
-					"lowerWarning ": 0,
-					"lowerSevere": 0
-				},
-				"metricScore": 20
-			}
-		}, {
-			"id": "AVG_ResponseTime",
-			"source": "Dynatrace",
-			"query": {
-				"timeseriesId": "com.dynatrace.builtin:service.responsetime",
-				"aggregation": "avg"
-			},
-			"grading": {
-				"type": "Threshold",
-				"thresholds": {
-					"upperSevere": 1000000,
-					"upperWarning": 500000,
-					"lowerWarning ": 0,
-					"lowerSevere": 0
-				},
-				"metricScore": 80
-			}
-		}],
-		"objectives": {
-			"pass": 200,
-			"warning": 150
-		}
-	}
+    "spec_version": "1.0",
+    "indicators": [{
+        "id": "P90_ResponseTime",
+        "source": "Dynatrace",
+        "query": {
+            "timeseriesId": "com.dynatrace.builtin:service.responsetime",
+            "aggregation": "p90"
+        },
+        "grading": {
+            "type": "Threshold",
+            "thresholds": {
+                "upperSevere": 1000000,
+                "upperWarning": 500000,
+                "lowerWarning ": 0,
+                "lowerSevere": 0
+            },
+            "metricScore": 20
+        }
+    }, {
+        "id": "AVG_ResponseTime",
+        "source": "Dynatrace",
+        "query": {
+            "timeseriesId": "com.dynatrace.builtin:service.responsetime",
+            "aggregation": "avg"
+        },
+        "grading": {
+            "type": "Threshold",
+            "thresholds": {
+                "upperSevere": 1000000,
+                "upperWarning": 500000,
+                "lowerWarning ": 0,
+                "lowerSevere": 0
+            },
+            "metricScore": 80
+        }
+    }],
+    "objectives": {
+        "pass": 100,
+        "warning": 50
+    }
 }
