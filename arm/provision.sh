@@ -93,7 +93,7 @@ az container create \
   --restart-policy OnFailure \
   --ip-address public \
   --ports 8080 \
-  --environment-variables 'DYNATRACE_BASEURL'='$DYNATRACE_BASE_URL' 'DYNATRACE_APITOKEN'='$DYNATRACE_API_TOKEN'
+  --environment-variables 'DYNATRACE_BASEURL'=$DYNATRACE_BASE_URL 'DYNATRACE_APITOKEN'=$DYNATRACE_API_TOKEN
 
 echo "================================================================="
 echo "Create Staging webapp"
