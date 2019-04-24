@@ -39,5 +39,8 @@ if ($FAKE_STATUS) {
 
 # evaluate the result and pass or fail the pipeline
 if ("$PERFSPEC_RESULT" -eq "fail") {
-  exit 1
+    Write-Host "Failed the quality gate" 
+    exit 1
+} else {
+    Write-Host "Passed the quality gate" 
 }
