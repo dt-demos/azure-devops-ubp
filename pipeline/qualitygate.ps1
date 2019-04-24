@@ -5,6 +5,7 @@
 $START_TIME=$Args[0]
 $END_TIME=$Args[1]
 $PITOMETER_URL=$Args[2]
+$FAKE_STATUS=$Args[3]
 
 Set-Variable -Name "PERFSPEC_DIR" -Value "$($env:AGENT_RELEASEDIRECTORY)\_$($env:BUILD_DEFINITIONNAME)\app\perfspec\perfspec.json"
 $PERFSPEC_CONTENT = Get-Content -Path $PERFSPEC_DIR
@@ -17,6 +18,7 @@ Write-Host "PITOMETER_URL         : "$PITOMETER_URL
 Write-Host "PERFSPEC_DIR          : "$PERFSPEC_DIR
 Write-Host "PERFSPEC_REQUEST_BODY : "$PERFSPEC_REQUEST_BODY
 Write-Host "PERFSPEC_CONTENT      : "$PERFSPEC_CONTENT
+Write-Host "FAKE_STATUS           : "$FAKE_STATUS
 Write-Host "==============================================================="
 Write-Host "Calling Pitometer Service..."
 $PERFSPEC_RESULT_BODY = Invoke-RestMethod -Uri $PITOMETER_URL -Method Post -Body $PERFSPEC_REQUEST_BODY -ContentType "application/json" 
@@ -29,6 +31,11 @@ Write-Host "Pitometer Response: "$PERFSPEC_JSON
 # pull out the result property
 $PERFSPEC_RESULT = $PERFSPEC_RESULT_BODY.result
 Write-Host "PERFSPEC_RESULT = "$PERFSPEC_RESULT
+
+# if pass in fake status then use it to override real status
+if ($FAKE_STATUS) {
+  $PERFSPEC_RESULT = $FAKE_STATUS
+}
 
 # evaluate the result and pass or fail the pipeline
 if ("$PERFSPEC_RESULT" -eq "fail") {
