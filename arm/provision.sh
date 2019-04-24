@@ -1,3 +1,9 @@
+
+# script to provision demo azure infrastrucure
+# define variables and call this script with
+# these arguments
+# "$(username)" "$(location)" "$(location-code)" "$(pitometer-image)" "$(subscription-id)" "$(dynatrace-environment-id)" "$(dynatrace-paas-token)" "$(dynatrace-api-token)" "$(dynatrace-base-url)" $(Build.SourcesDirectory)
+
 # user defined values
 USER_NAME="$1"
 RESOURCE_GROUP_LOCATION="$2"
@@ -37,7 +43,7 @@ echo "DEMO_APP_STAGING_NAME    = $DEMO_APP_STAGING_NAME"
 echo "DEMO_APP_PRODUCTION_NAME = $DEMO_APP_PRODUCTION_NAME"
 echo "TEMPLATE_FILE_PATH       = $TEMPLATE_FILE_PATH"
 echo "================================================================="
-ls -l $TEMPLATE_FILE_PATH
+ls -l $BUILD_SOURCE_DIR
 echo "================================================================="
 
 echo "================================================================="
