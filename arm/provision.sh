@@ -8,6 +8,7 @@ DYNATRACE_ENVIONMENT_ID="$6"
 DYNATRACE_PAAS_TOKEN="$7"
 DYNATRACE_API_TOKEN="$8"
 DYNATRACE_BASE_URL="$9"
+BUILD_SOURCE_DIR="${10}"
 
 # auto-generated values
 RESOURCE_GROUP_NAME=$USER_NAME-ubp-demo-rg
@@ -16,8 +17,7 @@ PITOMETER_APP_NAME=$USER_NAME-ubp-demo-pitometer
 DEMO_APP_STAGING_NAME=$USER_NAME-ubp-demo-app-staging
 DEMO_APP_PRODUCTION_NAME=$USER_NAME-ubp-demo-app-production
 DYNATRACE_API_URL=$DYNATRACE_BASE_URL/e/$DYNATRACE_ENVIONMENT_ID/api
-
-TEMPLATE_FILE_PATH="$(Build.SourcesDirectory)/arm/webapp-template.json"
+TEMPLATE_FILE_PATH=$BUILD_SOURCE_DIR/arm/webapp-template.json
 
 echo "================================================================="
 echo "Provisioning with:"
