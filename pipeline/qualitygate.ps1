@@ -34,7 +34,8 @@ Write-Host "PERFSPEC_RESULT = "$PERFSPEC_RESULT
 
 # if pass in fake status then use it to override real status
 if ($FAKE_STATUS) {
-  $PERFSPEC_RESULT = $FAKE_STATUS
+    Write-Host "Faking out the status to be "$FAKE_STATUS
+    $PERFSPEC_RESULT = $FAKE_STATUS
 }
 
 # evaluate the result and pass or fail the pipeline
