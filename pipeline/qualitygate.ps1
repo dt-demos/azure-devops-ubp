@@ -1,13 +1,15 @@
 # this script will call the pitometer service and parse out the
 # result value.  If the value is fail, then exit script with error
-# example arguments $env:startTime $env:endTime $(pitometer-url)
+# example arguments $env:startTime $env:endTime $(pitometer-url) app\perfspec\perfspec.json pass
+# FAKE_STATUS is optional.  Used to override the result of pitometer results. Example values pass, warn, error
 
 $START_TIME=$Args[0]
 $END_TIME=$Args[1]
 $PITOMETER_URL=$Args[2]
-$FAKE_STATUS=$Args[3]
+$PERFSPEC_FILE=$Args[3]
+$FAKE_STATUS=$Args[4]
 
-Set-Variable -Name "PERFSPEC_DIR" -Value "$($env:AGENT_RELEASEDIRECTORY)\_$($env:BUILD_DEFINITIONNAME)\app\perfspec\perfspec.json"
+Set-Variable -Name "PERFSPEC_DIR" -Value "$($env:AGENT_RELEASEDIRECTORY)\_$($env:BUILD_DEFINITIONNAME)\$($PERFSPEC_FILE)"
 $PERFSPEC_CONTENT = Get-Content -Path $PERFSPEC_DIR
 $PERFSPEC_REQUEST_BODY="{""timeStart"": $START_TIME,""timeEnd"": $END_TIME,""perfSpec"": $($PERFSPEC_CONTENT)}"
 
