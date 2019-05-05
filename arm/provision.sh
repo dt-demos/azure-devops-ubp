@@ -1,4 +1,3 @@
-
 # script to provision demo azure infrastrucure
 # define variables and call this script with
 # these arguments
@@ -22,26 +21,30 @@ APP_SERVICE_PLAN_NAME=$USER_NAME-ubp-demo-plan
 PITOMETER_APP_NAME=$USER_NAME-ubp-demo-pitometer
 DEMO_APP_STAGING_NAME=$USER_NAME-ubp-demo-app-staging
 DEMO_APP_PRODUCTION_NAME=$USER_NAME-ubp-demo-app-production
+LOGIC_APP_NAME=$USER_NAME-ubp-demo-logic-app-self-healing
 DYNATRACE_API_URL=$DYNATRACE_BASE_URL/e/$DYNATRACE_ENVIONMENT_ID/api
-TEMPLATE_FILE_PATH=$BUILD_SOURCE_DIR/arm/webapp-template.json
+DEMO_APP_TEMPLATE_FILE_PATH=$BUILD_SOURCE_DIR/arm/webapp-template.json
+LOGIC_APP_TEMPLATE_FILE_PATH=$BUILD_SOURCE_DIR/arm/logicapp-template.json
 
 echo "================================================================="
 echo "Provisioning with:"
 echo ""
-echo "USER_NAME                = $USER_NAME"
-echo "RESOURCE_GROUP_LOCATION  = $RESOURCE_GROUP_LOCATION"
-echo "ARM_LOCATION             = $ARM_LOCATION"
-echo "PITOMETER_IMAGE          = $PITOMETER_IMAGE"
-echo "SUBSCRIPTION_ID          = $SUBSCRIPTION_ID"
-echo "DYNATRACE_ENVIONMENT_ID  = $DYNATRACE_ENVIONMENT_ID"
-echo "DYNATRACE_BASE_URL       = $DYNATRACE_BASE_URL"
-echo "DYNATRACE_API_URL        = $DYNATRACE_API_URL"
-echo "RESOURCE_GROUP_NAME      = $RESOURCE_GROUP_NAME"
-echo "APP_SERVICE_PLAN_NAME    = $APP_SERVICE_PLAN_NAME"
-echo "PITOMETER_APP_NAME       = $PITOMETER_APP_NAME"
-echo "DEMO_APP_STAGING_NAME    = $DEMO_APP_STAGING_NAME"
-echo "DEMO_APP_PRODUCTION_NAME = $DEMO_APP_PRODUCTION_NAME"
-echo "TEMPLATE_FILE_PATH       = $TEMPLATE_FILE_PATH"
+echo "USER_NAME                    = $USER_NAME"
+echo "RESOURCE_GROUP_LOCATION      = $RESOURCE_GROUP_LOCATION"
+echo "ARM_LOCATION                 = $ARM_LOCATION"
+echo "PITOMETER_IMAGE              = $PITOMETER_IMAGE"
+echo "SUBSCRIPTION_ID              = $SUBSCRIPTION_ID"
+echo "DYNATRACE_ENVIONMENT_ID      = $DYNATRACE_ENVIONMENT_ID"
+echo "DYNATRACE_BASE_URL           = $DYNATRACE_BASE_URL"
+echo "DYNATRACE_API_URL            = $DYNATRACE_API_URL"
+echo "RESOURCE_GROUP_NAME          = $RESOURCE_GROUP_NAME"
+echo "APP_SERVICE_PLAN_NAME        = $APP_SERVICE_PLAN_NAME"
+echo "PITOMETER_APP_NAME           = $PITOMETER_APP_NAME"
+echo "DEMO_APP_STAGING_NAME        = $DEMO_APP_STAGING_NAME"
+echo "DEMO_APP_PRODUCTION_NAME     = $DEMO_APP_PRODUCTION_NAME"
+echo "LOGIC_APP_NAME               = $LOGIC_APP_NAME"
+echo "DEMO_APP_TEMPLATE_FILE_PATH  = $DEMO_APP_TEMPLATE_FILE_PATH"
+echo "LOGIC_APP_TEMPLATE_FILE_PATH = $LOGIC_APP_TEMPLATE_FILE_PATH"
 echo "================================================================="
 ls -l $BUILD_SOURCE_DIR
 echo "================================================================="
@@ -104,7 +107,7 @@ echo "Starting deployment for $DEMO_APP_STAGING_NAME"
     set -x
     az group deployment create --name "$DEMO_APP_STAGING_NAME-dg" \
     --resource-group "$RESOURCE_GROUP_NAME" \
-    --template-file "$TEMPLATE_FILE_PATH" \
+    --template-file "$DEMO_APP_TEMPLATE_FILE_PATH" \
     --parameters "name=$DEMO_APP_STAGING_NAME" \
     --parameters "hostingPlanName=$APP_SERVICE_PLAN_NAME" \
     --parameters "hostingEnvironment=" \
@@ -130,7 +133,7 @@ echo "Starting deployment for $DEMO_APP_PRODUCTION_NAME"
     set -x
     az group deployment create --name "$DEMO_APP_PRODUCTION_NAME-dg" \
     --resource-group "$RESOURCE_GROUP_NAME" \
-    --template-file "$TEMPLATE_FILE_PATH" \
+    --template-file "$DEMO_APP_TEMPLATE_FILE_PATH" \
     --parameters "name=$DEMO_APP_PRODUCTION_NAME" \
     --parameters "hostingPlanName=$APP_SERVICE_PLAN_NAME" \
     --parameters "hostingEnvironment=" \
@@ -146,3 +149,18 @@ echo "Starting deployment for $DEMO_APP_PRODUCTION_NAME"
 if [ $? == 0 ]; then
   echo "$DEMO_APP_PRODUCTION_NAME has been successfully deployed"
 fi
+
+echo "================================================================="
+echo "Starting deployment for $LOGIC_APP_NAME"
+echo "================================================================="
+(
+    set -x
+    az group deployment create --name "$LOGIC_APP_NAME-dg" \
+    --resource-group "$RESOURCE_GROUP_NAME" \
+    --template-file "$LOGIC_APP_TEMPLATE_FILE_PATH" \
+    --parameters "logicAppName=$LOGIC_APP_NAME"
+
+    # future idea
+    #--parameters "dynatrace-api-token=$DYNATRACE_API_TOKEN" \
+    #--parameters "dynatrace-base-url=$DYNATRACE_BASE_URL"
+)

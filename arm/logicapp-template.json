@@ -1,0 +1,153 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "logicAppName": {
+            "defaultValue": "ubp-demo-logic-app-self-healing",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('logicAppName')]",
+            "location": "eastus",
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "triggers": {
+                        "manual": {
+                            "type": "Request",
+                            "kind": "Http",
+                            "inputs": {
+                                "schema": {
+                                    "properties": {
+                                        "ImpactedEntities": {
+                                            "type": "string"
+                                        },
+                                        "PID": {
+                                            "type": "string"
+                                        },
+                                        "ProblemDetailsHTML": {
+                                            "type": "string"
+                                        },
+                                        "ProblemID": {
+                                            "type": "string"
+                                        },
+                                        "ProblemImpact": {
+                                            "type": "string"
+                                        },
+                                        "ProblemSeverity": {
+                                            "type": "string"
+                                        },
+                                        "ProblemTitle": {
+                                            "type": "string"
+                                        },
+                                        "ProblemURL": {
+                                            "type": "string"
+                                        },
+                                        "State": {
+                                            "type": "string"
+                                        },
+                                        "Tags": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Condition": {
+                            "actions": {
+                                "HTTP": {
+                                    "runAfter": {},
+                                    "type": "Http",
+                                    "inputs": {
+                                        "body": {
+                                            "comment": "Created Work Item",
+                                            "context": "Logic App",
+                                            "user": "Azure DevOps"
+                                        },
+                                        "headers": {
+                                            "Authorization": "Api-token @{variables('DynatraceToken')}",
+                                            "Content-Type": "application/json"
+                                        },
+                                        "method": "POST",
+                                        "uri": "https://@{variables('DynatraceUrl')}/api/v1/problem/details/@{triggerBody()?['PID']}/comments\n"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "DynatraceToken": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@triggerBody()?['State']",
+                                            "OPEN"
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "DynatraceToken": {
+                            "runAfter": {
+                                "DynatraceUrl": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "DynatraceToken",
+                                        "type": "String"
+                                    }
+                                ]
+                            }
+                        },
+                        "DynatraceUrl": {
+                            "runAfter": {},
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "DynatraceUrl",
+                                        "type": "String",
+                                        "value": "test@{triggerBody()?['PID']}"
+                                    }
+                                ]
+                            }
+                        },
+                        "Response": {
+                            "runAfter": {
+                                "Condition": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Response",
+                            "kind": "Http",
+                            "inputs": {
+                                "body": "Logic application complete for problem: @{triggerBody()?['PID']}",
+                                "statusCode": 200
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {}
+            }
+        }
+    ]
+}
