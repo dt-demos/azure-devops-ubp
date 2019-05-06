@@ -1,8 +1,7 @@
-
 # script to send an create Dynatrace deployment API call 
 # define variables and call this script with
 # these arguments
-# "$(dynatrace-base-url)" "$(dynatrace-api-token)" Staging $Release.DefinitionName $Release.ReleaseId $System.TeamProject $System.TeamFoundationCollectionUri
+# "$(dynatrace-base-url)" "$(dynatrace-api-token)" Staging "$(Release.DefinitionName)" "$(app-problem-number)" $(System.TeamProject) $(Release.ReleaseWebURL)
 
 DYNATRACE_BASE_URL="$1"
 DYNATRACE_API_TOKEN="$2"
