@@ -23,4 +23,4 @@ Once provisioned, the sample nodejs application will look like this for both a "
 
 # Provision Demo resources
 
-See [these instructions](./arm/ARM.md) 
+See [these instructions](./arm/README.md) 
