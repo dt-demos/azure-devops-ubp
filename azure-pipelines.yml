@@ -72,7 +72,7 @@ stages:
               buildType: 'current'
             
           - task: AzureWebApp@1
-            displayName: 'Azure Web App Deploy: jahn-ubp-demo-app-production'
+            displayName: 'Azure Web App Deploy: $(webAppName)'
             inputs:
               azureSubscription: $(azureSubscription)
               appType: webAppLinux
