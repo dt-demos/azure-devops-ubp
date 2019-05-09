@@ -64,16 +64,15 @@ stages:
             displayName: 'Download Pipeline Artifact'
             inputs:
               buildType: 'current'
-            
-          - task: AzureWebApp@1
-            displayName: 'Azure Web App Deploy Staging'
+
+          - task: AzureRmWebAppDeployment@4
+            displayName: 'Deploy Staging'
             inputs:
               azureSubscription: $(azureSubscription)
-              appType: webAppLinux
-              appName: $(stagingDemoWebapp)
-              runtimeStack: 'NODE|10.10'
-              package: $(System.ArtifactsDirectory)/drop/$(Build.BuildId).zip
-              startUpCommand: 'npm run start'
+              WebAppName: $(stagingDemoWebapp)
+              packageForLinux: $(System.ArtifactsDirectory)/drop/$(Build.BuildId).zip
+              WebConfigParameters: '-Handler iisnode -NodeStartFile app.js -appType node'
+              AppSettings: '-DEPLOYMENT_GROUP_NAME Staging -PROBLEM_NUMBER $(appProblemNumber)'
 
           - task: Bash@3
             displayName: 'Debug'
