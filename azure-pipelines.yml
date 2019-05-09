@@ -75,9 +75,6 @@ stages:
           - bash: 'ls -l $(System.DefaultWorkingDirectory)/extract'
             displayName: 'ls DefaultWorkingDirectory extract'
 
-          - bash: 'ls -l $(System.ArtifactsDirectory)'
-            displayName: 'ls ArtifactsDirectory'
-
           - task: AzureRmWebAppDeployment@4
             displayName: 'Deploy Staging'
             enabled: false
@@ -119,4 +116,4 @@ stages:
             inputs:
               targetType: filePath
               filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/qualitygate.ps1
-              arguments: '$env:startTime $env:endTime $(pitometerUrl) $(perfspecFile) $(fakeQualityGateStatus)'
+              arguments: '$env:startTime $env:endTime $(pitometerUrl) $(System.DefaultWorkingDirectory)/extract/$(perfspecFile) $(fakeQualityGateStatus)'
