@@ -8,6 +8,8 @@ trigger:
 
 variables:
   
+  azureSubscription: InnovationLab-Dev
+
   # Web app name
   webAppName: 'jahn-ubp-demo-app-production'
 
@@ -62,9 +64,7 @@ stages:
     strategy:
       runOnce:
         deploy:
-          steps:
-          - env:
-            AZURE_SUBCRIPTION: $(azureSubscription)
+
           - task: DownloadPipelineArtifact@1
             displayName: 'Download Pipeline Artifact'
             inputs:
@@ -73,7 +73,7 @@ stages:
           - task: AzureWebApp@1
             displayName: 'Azure Web App Deploy: jahn-demo1'
             inputs:
-              azureSubscription: $env:AZURE_SUBCRIPTION
+              azureSubscription: $(azureSubscription)
               appType: webAppLinux
               appName: $(webAppName)
               runtimeStack: 'NODE|10.10'
