@@ -52,6 +52,11 @@ stages:
       inputs:
         targetPath: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
 
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: 'echo $(foo)
+
 - stage: Deploy
   displayName: Deploy stage
   dependsOn: Build
