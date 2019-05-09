@@ -9,7 +9,7 @@ trigger:
 variables:
 
   # Azure Resource Manager connection created during pipeline creation
-  azureSubscription: '756b2aa1-0638-4159-950d-142d55c3f7ea'
+  azureSubscription: 'test'
   
   # Web app name
   webAppName: 'jahn-ubp-demo-app-production'
