@@ -76,3 +76,11 @@ stages:
               runtimeStack: 'NODE|10.10'
               package: $(System.ArtifactsDirectory)/drop/$(Build.BuildId).zip
               startUpCommand: 'npm run start'
+
+          - task: AzureRmWebAppDeployment@4
+            inputs:
+              ConnectionType: 'AzureRM'
+              azureSubscription: 'InnovationLab-Dev'
+              appType: 'webApp'
+              WebAppName: 'jahn-ubp-demo-app-production'
+              packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
