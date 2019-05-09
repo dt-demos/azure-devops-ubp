@@ -37,6 +37,15 @@ stages:
       inputs:
         buildType: 'current'
 
+    - task: ArchiveFiles@2
+      displayName: 'Archive files'
+      inputs:
+        rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+        includeRootFolder: false
+        archiveType: zip
+        archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+        replaceExistingArchive: true
+
     - task: AzureRmWebAppDeployment@4
       displayName: 'Deploy Staging'
       enabled: false
@@ -48,6 +57,12 @@ stages:
         AppSettings: '-DEPLOYMENT_GROUP_NAME Staging -PROBLEM_NUMBER $(appProblemNumber)'
 
     - bash: 'pwd && ls -l'
+      displayName: 'Bash Script'
+
+    - bash: 'ls -l $(System.ArtifactsDirectory)'
+      displayName: 'Bash Script'
+
+    - bash: 'ls -l $(System.ArtifactsDirectory)/drop'
       displayName: 'Bash Script'
 
     - task: Bash@3
