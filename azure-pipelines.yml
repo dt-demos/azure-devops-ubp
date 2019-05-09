@@ -116,4 +116,4 @@ stages:
             inputs:
               targetType: filePath
               filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/qualitygate.ps1
-              arguments: '$env:startTime $env:endTime $(pitometerUrl) $(System.DefaultWorkingDirectory)/extract/$(perfspecFile) $(fakeQualityGateStatus)'
+              arguments: '$env:startTime $env:endTime $(pitometerUrl) /home/vsts/work/1/s/extract/$(perfspecFile) $(fakeQualityGateStatus)'
