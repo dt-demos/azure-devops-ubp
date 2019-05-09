@@ -78,31 +78,31 @@ stages:
             displayName: 'Dynatrace Deployment Event'
             inputs:
               targetType: filePath
-              filePath: $(System.DefaultWorkingDirectory)/pipeline/dynatrace-deployment-event.sh
+              filePath: $(System.ArtifactStagingDirectory)/pipeline/dynatrace-deployment-event.sh
               arguments: '"$(dynatraceBaseUrl)" "$(dynatraceApiToken)" Staging $(Release.DefinitionName) $(Release.ReleaseId) $(System.TeamProject) $(System.TeamFoundationCollectionUri)'
 
           - task: PowerShell@2
             displayName: 'Capture Load Test Start Time'
             inputs:
               targetType: filePath
-              filePath: $(System.DefaultWorkingDirectory)/pipeline/captureStartTime.ps1
+              filePath: $(System.ArtifactStagingDirectory)/pipeline/captureStartTime.ps1
 
           - task: Bash@3
             displayName: 'Load Test'
             inputs:
               targetType: filePath
-              filePath: $(System.DefaultWorkingDirectory)/loadtest.sh
+              filePath: $(System.ArtifactStagingDirectory)/loadtest.sh
               arguments: 'Staging $(demoWebappStagingUrl) $(loadtestDurationSeconds)'
 
           - task: PowerShell@2
             displayName: 'Capture Load Test End Time'
             inputs:
               targetType: filePath
-              filePath: $(System.DefaultWorkingDirectory)/pipeline/captureEndTime.ps1
+              filePath: $(System.ArtifactStagingDirectory)/pipeline/captureEndTime.ps1
 
           - task: PowerShell@2
             displayName: 'Quality Gate call to Pitometer'
             inputs:
               targetType: filePath
-              filePath: $(System.DefaultWorkingDirectory)/pipeline/qualitygate.ps1
+              filePath: $(System.ArtifactStagingDirectory)/pipeline/qualitygate.ps1
               arguments: '$env:startTime $env:endTime $(pitometerUrl) $(perfspecFile) $(fakeQualityGateStatus)'
