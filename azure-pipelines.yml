@@ -88,10 +88,13 @@ stages:
             displayName: 'ls ArtifactsDirectory drop subdir'
 
           - bash: 'ls -l $(System.DefaultWorkingDirectory)'
-            displayName: 'ls ArtifactsDirectory DefaultWorkingDirectory'
+            displayName: 'ls  DefaultWorkingDirectory'
 
           - bash: 'ls -l $(System.ArtifactStagingDirectory)'
-            displayName: 'ls ArtifactsDirectory ArtifactStagingDirectory'
+            displayName: 'ls  ArtifactStagingDirectory'
+
+          - bash: 'ls -l $(Build.SourcesDirectory)'
+            displayName: 'ls Build SourcesDirectory'
 
           - task: Bash@3
             displayName: 'Dynatrace Deployment Event'
