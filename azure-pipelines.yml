@@ -68,7 +68,7 @@ stages:
 
           - task: ExtractFiles@1
             inputs:
-              archiveFilePatterns: '*.zip' 
+              archiveFilePatterns: '$(Build.ArtifactStagingDirectory)/*.zip' 
               cleanDestinationFolder: true
 
           - bash: 'ls -l $(Build.SourcesDirectory)'
