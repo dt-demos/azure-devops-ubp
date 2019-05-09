@@ -32,11 +32,6 @@ stages:
         npm run test --if-present
       displayName: 'npm install, build and test'
       
-    - task: DownloadPipelineArtifact@1
-      displayName: 'Download Pipeline Artifact'
-      inputs:
-        buildType: 'current'
-
     - task: ArchiveFiles@2
       displayName: 'Archive files'
       inputs:
@@ -65,6 +60,11 @@ stages:
       runOnce:
         deploy:
           steps:
+          - task: DownloadPipelineArtifact@1
+            displayName: 'Download Pipeline Artifact'
+            inputs:
+              buildType: 'current'
+
           - task: AzureRmWebAppDeployment@4
             displayName: 'Deploy Staging'
             enabled: false
