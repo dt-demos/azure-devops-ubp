@@ -66,6 +66,14 @@ stages:
               buildType: 'current'
               downloadPath: '$(System.ArtifactsDirectory)' 
 
+          - task: ExtractFiles@1
+            inputs:
+              archiveFilePatterns: '*.zip' 
+              cleanDestinationFolder: true
+
+          - bash: 'ls -l $(Build.SourcesDirectory)'
+            displayName: 'ls Build SourcesDirectory'
+
           - bash: 'ls -l $(System.ArtifactsDirectory)'
             displayName: 'ls ArtifactsDirectory'
 
