@@ -10,9 +10,6 @@ variables:
   
   azureSubscription: InnovationLab-Dev
 
-  # Web app name
-  webAppName: $(webAppName)
-
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
 
