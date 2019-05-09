@@ -64,6 +64,7 @@ stages:
             displayName: 'Download Pipeline Artifact'
             inputs:
               buildType: 'current'
+              downloadPath: '$(System.ArtifactsDirectory)' 
 
           - bash: 'ls -l $(System.ArtifactsDirectory)'
             displayName: 'ls ArtifactsDirectory'
