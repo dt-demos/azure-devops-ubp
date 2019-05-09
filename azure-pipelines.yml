@@ -67,6 +67,7 @@ stages:
 
           - task: AzureRmWebAppDeployment@4
             displayName: 'Deploy Staging'
+            enabled: false
             inputs:
               azureSubscription: $(azureSubscription)
               WebAppName: $(stagingDemoWebapp)
@@ -74,35 +75,38 @@ stages:
               WebConfigParameters: '-Handler iisnode -NodeStartFile app.js -appType node'
               AppSettings: '-DEPLOYMENT_GROUP_NAME Staging -PROBLEM_NUMBER $(appProblemNumber)'
 
+          - bash: 'pwd && ls -l'
+            displayName: 'Bash Script'
+
           - task: Bash@3
             displayName: 'Dynatrace Deployment Event'
             inputs:
               targetType: filePath
-              filePath: $(System.ArtifactStagingDirectory)/pipeline/dynatrace-deployment-event.sh
+              filePath: $(System.DefaultWorkingDirectory)/pipeline/dynatrace-deployment-event.sh
               arguments: '"$(dynatraceBaseUrl)" "$(dynatraceApiToken)" Staging $(Release.DefinitionName) $(Release.ReleaseId) $(System.TeamProject) $(System.TeamFoundationCollectionUri)'
 
           - task: PowerShell@2
             displayName: 'Capture Load Test Start Time'
             inputs:
               targetType: filePath
-              filePath: $(System.ArtifactStagingDirectory)/pipeline/captureStartTime.ps1
+              filePath: $(System.DefaultWorkingDirectory)/pipeline/captureStartTime.ps1
 
           - task: Bash@3
             displayName: 'Load Test'
             inputs:
               targetType: filePath
-              filePath: $(System.ArtifactStagingDirectory)/loadtest.sh
+              filePath: $(System.DefaultWorkingDirectory)/loadtest.sh
               arguments: 'Staging $(demoWebappStagingUrl) $(loadtestDurationSeconds)'
 
           - task: PowerShell@2
             displayName: 'Capture Load Test End Time'
             inputs:
               targetType: filePath
-              filePath: $(System.ArtifactStagingDirectory)/pipeline/captureEndTime.ps1
+              filePath: $(System.DefaultWorkingDirectory)/pipeline/captureEndTime.ps1
 
           - task: PowerShell@2
             displayName: 'Quality Gate call to Pitometer'
             inputs:
               targetType: filePath
-              filePath: $(System.ArtifactStagingDirectory)/pipeline/qualitygate.ps1
+              filePath: $(System.DefaultWorkingDirectory)/pipeline/qualitygate.ps1
               arguments: '$env:startTime $env:endTime $(pitometerUrl) $(perfspecFile) $(fakeQualityGateStatus)'
