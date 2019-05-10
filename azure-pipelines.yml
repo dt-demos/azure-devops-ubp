@@ -46,7 +46,7 @@ stages:
       inputs:
         targetPath: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
 
-- stage: Deploy Staging
+- stage: Deploy_Staging
   displayName: Deploy to staging
   dependsOn: Build
   condition: succeeded()
@@ -119,9 +119,9 @@ stages:
               arguments: '$(startTime) $(endTime) $(pitometerUrl) /home/vsts/work/1/s/extract/$(perfspecFile) $(fakeQualityGateStatus)'
               condition: ne($(qualityGateResult),'fail')
 
-- stage: Deploy
+- stage: Deploy_Production
   displayName: Deploy to production
-  dependsOn: Deploy Staging
+  dependsOn: Deploy_Staging
   condition: succeeded()
   jobs:
   - deployment: Deploy
