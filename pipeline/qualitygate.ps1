@@ -40,10 +40,12 @@ if ($FAKE_STATUS) {
     $PERFSPEC_RESULT = $FAKE_STATUS
 }
 
+Write-Host ("##vso[task.setvariable variable=qualityGateResult]$PERFSPEC_RESULT")
+
 # evaluate the result and pass or fail the pipeline
 if ("$PERFSPEC_RESULT" -eq "fail") {
     Write-Host "Failed the quality gate" 
-    exit 1
+    #exit 1
 } else {
     Write-Host "Passed the quality gate" 
 }
