@@ -117,7 +117,6 @@ stages:
               targetType: filePath
               filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/qualitygate.ps1
               arguments: '$(startTime) $(endTime) $(pitometerUrl) /home/vsts/work/1/s/extract/$(perfspecFile) $(fakeQualityGateStatus)'
-              condition: ne($(qualityGateResult),'fail')
 
 - stage: Deploy_Production
   displayName: Deploy to production
@@ -134,6 +133,18 @@ stages:
         deploy:
           steps:
 
+          - task: DownloadPipelineArtifact@1
+            displayName: 'Download Pipeline Artifact'
+            inputs:
+              buildType: 'current'
+              downloadPath: '$(System.ArtifactsDirectory)' 
+
+          - task: ExtractFiles@1
+            inputs:
+              archiveFilePatterns: '$(Build.ArtifactStagingDirectory)/*.zip'
+              destinationFolder: '$(System.DefaultWorkingDirectory)/extract'
+              cleanDestinationFolder: true
+              
           - task: AzureRmWebAppDeployment@4
             displayName: 'Deploy production'
             enabled: false
