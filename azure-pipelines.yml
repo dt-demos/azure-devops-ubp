@@ -13,7 +13,7 @@ variables:
 
 stages:
 - stage: Build
-  displayName: Build stage
+  displayName: Build app
   jobs:  
   - job: Build
     displayName: Build
@@ -46,14 +46,14 @@ stages:
       inputs:
         targetPath: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
 
-- stage: Deploy
-  displayName: Deploy stage
+- stage: Deploy Staging
+  displayName: Deploy to staging
   dependsOn: Build
   condition: succeeded()
   jobs:
   - deployment: Deploy
     displayName: Deploy
-    environment: 'development'
+    environment: 'demo'
     pool: 
       vmImage: $(vmImageName)    
     strategy:
@@ -118,3 +118,35 @@ stages:
               filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/qualitygate.ps1
               arguments: '$(startTime) $(endTime) $(pitometerUrl) /home/vsts/work/1/s/extract/$(perfspecFile) $(fakeQualityGateStatus)'
               condition: ne($(qualityGateResult),'fail')
+
+- stage: Deploy
+  displayName: Deploy to production
+  dependsOn: Deploy Staging
+  condition: succeeded()
+  jobs:
+  - deployment: Deploy
+    displayName: Deploy
+    environment: 'demo'
+    pool: 
+      vmImage: $(vmImageName)    
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+
+          - task: AzureRmWebAppDeployment@4
+            displayName: 'Deploy production'
+            enabled: false
+            inputs:
+              azureSubscription: $(azureSubscription)
+              WebAppName: $(productionDemoWebapp)
+              packageForLinux: $(System.ArtifactsDirectory)/drop/$(Build.BuildId).zip
+              WebConfigParameters: '-Handler iisnode -NodeStartFile app.js -appType node'
+              AppSettings: '-DEPLOYMENT_GROUP_NAME Production -PROBLEM_NUMBER $(appProblemNumber)'
+
+          - task: Bash@3
+            displayName: 'Dynatrace Deployment Event'
+            inputs:
+              targetType: filePath
+              filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/dynatrace-deployment-event.sh
+              arguments: '"$(dynatraceBaseUrl)" "$(dynatraceApiToken)" Production $(Release.DefinitionName) $(Release.ReleaseId) $(System.TeamProject) $(System.TeamFoundationCollectionUri)'
