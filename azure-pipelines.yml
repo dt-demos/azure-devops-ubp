@@ -117,3 +117,4 @@ stages:
               targetType: filePath
               filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/qualitygate.ps1
               arguments: '$(startTime) $(endTime) $(pitometerUrl) /home/vsts/work/1/s/extract/$(perfspecFile) $(fakeQualityGateStatus)'
+              condition: ne($(qualityGateResult),'fail')
