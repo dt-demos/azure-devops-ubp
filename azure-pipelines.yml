@@ -90,7 +90,7 @@ stages:
             inputs:
               targetType: filePath
               filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/dynatrace-deployment-event.sh
-              arguments: '"$(dynatraceBaseUrl)" "$(dynatraceApiToken)" Staging $(Release.DefinitionName) $(Release.ReleaseId) $(System.TeamProject) $(Build.BuildUri)'
+              arguments: '"$(dynatraceBaseUrl)" "$(dynatraceApiToken)" Staging $(Release.DefinitionName) $(Release.ReleaseId) $(System.TeamProject) $(System.TeamFoundationCollectionUri)/$(System.TeamProject)_build/results?buildId=$(Build.BuildNumber)'
 
           - task: PowerShell@2
             displayName: 'Capture Load Test Start Time'
@@ -160,4 +160,4 @@ stages:
             inputs:
               targetType: filePath
               filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/dynatrace-deployment-event.sh
-              arguments: '"$(dynatraceBaseUrl)" "$(dynatraceApiToken)" Production $(Release.DefinitionName) $(Release.ReleaseId) $(System.TeamProject) $(System.Build.BuildUri)'
+              arguments: '"$(dynatraceBaseUrl)" "$(dynatraceApiToken)" Production $(Release.DefinitionName) $(Release.ReleaseId) $(System.TeamProject) $(System.TeamFoundationCollectionUri)/$(System.TeamProject)_build/results?buildId=$(Build.BuildNumber)'
