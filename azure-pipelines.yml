@@ -3,16 +3,10 @@
 # Add steps that analyze code, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
-trigger:
-- master
+# disable the push trigger
+trigger: none
 
 variables:
-
-  # Azure Resource Manager connection created during pipeline creation
-  azureSubscription: '756b2aa1-0638-4159-950d-142d55c3f7ea'
-  
-  # Web app name
-  webAppName: 'jahn-ubp-demo-app-production'
 
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
@@ -70,13 +64,57 @@ stages:
             displayName: 'Download Pipeline Artifact'
             inputs:
               buildType: 'current'
-            
-          - task: AzureWebApp@1
-            displayName: 'Azure Web App Deploy: jahn-ubp-demo-app-production'
+              downloadPath: '$(System.ArtifactsDirectory)' 
+
+          - task: ExtractFiles@1
+            inputs:
+              archiveFilePatterns: '$(Build.ArtifactStagingDirectory)/*.zip'
+              destinationFolder: '$(System.DefaultWorkingDirectory)/extract'
+              cleanDestinationFolder: true
+
+          - bash: 'ls -l $(System.DefaultWorkingDirectory)/extract'
+            displayName: 'ls DefaultWorkingDirectory extract'
+
+          - task: AzureRmWebAppDeployment@4
+            displayName: 'Deploy Staging'
+            enabled: false
             inputs:
               azureSubscription: $(azureSubscription)
-              appType: webAppLinux
-              appName: $(webAppName)
-              runtimeStack: 'NODE|10.10'
-              package: $(System.ArtifactsDirectory)/drop/$(Build.BuildId).zip
-              startUpCommand: 'npm run start'
+              WebAppName: $(stagingDemoWebapp)
+              packageForLinux: $(System.ArtifactsDirectory)/drop/$(Build.BuildId).zip
+              WebConfigParameters: '-Handler iisnode -NodeStartFile app.js -appType node'
+              AppSettings: '-DEPLOYMENT_GROUP_NAME Staging -PROBLEM_NUMBER $(appProblemNumber)'
+
+          - task: Bash@3
+            displayName: 'Dynatrace Deployment Event'
+            inputs:
+              targetType: filePath
+              filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/dynatrace-deployment-event.sh
+              arguments: '"$(dynatraceBaseUrl)" "$(dynatraceApiToken)" Staging $(Release.DefinitionName) $(Release.ReleaseId) $(System.TeamProject) $(System.TeamFoundationCollectionUri)'
+
+          - task: PowerShell@2
+            displayName: 'Capture Load Test Start Time'
+            inputs:
+              targetType: filePath
+              filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/captureStartTime.ps1
+
+          - task: Bash@3
+            displayName: 'Load Test'
+            inputs:
+              targetType: filePath
+              filePath: $(System.DefaultWorkingDirectory)/extract/loadtest.sh
+              arguments: 'Staging $(demoWebappStagingUrl) $(loadtestDurationSeconds)'
+
+          - task: PowerShell@2
+            displayName: 'Capture Load Test End Time'
+            inputs:
+              targetType: filePath
+              filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/captureEndTime.ps1
+
+          - task: PowerShell@2
+            displayName: 'Quality Gate call to Pitometer'
+            inputs:
+              targetType: filePath
+              filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/qualitygate.ps1
+              arguments: '$(startTime) $(endTime) $(pitometerUrl) /home/vsts/work/1/s/extract/$(perfspecFile) $(fakeQualityGateStatus)'
+              condition: ne($(qualityGateResult),'fail')
