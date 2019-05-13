@@ -4,7 +4,7 @@ This demo application was created to showcase the concept of [adding automated p
 
 Once provisioned, the sample nodejs application will look like this for both a "staging" and "production" webapp intances.
 
-<img src="img/demoapp.png" width="500"/>
+<img src="docs/demoapp.png" width="500"/>
 
 # Folders and files
 
@@ -15,7 +15,7 @@ Once provisioned, the sample nodejs application will look like this for both a "
 
 # Provision Azure resources
 
-See [these instructions](./arm/README.md) 
+[More details here](./arm/README.md) 
 
 # Azure DevOps pipelines
 
@@ -40,11 +40,11 @@ Required Pipeline variables
 
 Recommend creating a 'Variable Group'
 
-<img src="img/variables.png" width="500"/>
+<img src="docs/variables.png" width="500"/>
 
 then linking the variable group to each pipeline
 
-<img src="img/variable-link.png" width="500"/>
+<img src="docs/variable-link.png" width="500"/>
 
 
 # Local development

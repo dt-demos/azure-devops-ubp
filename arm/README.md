@@ -11,32 +11,32 @@ Files:
 
 When this is done you will have these resources within your defined resource group.
 
-<img src="images/az-resourcegroup.png" width="500"/>
+<img src="docs/az-resourcegroup.png" width="500"/>
 
 # Pitometer container app
 
 Web service will be reachable @ ```http://<IP Address:8080/api/pitometer```
 
-<img src="images/az-pitometer.png" width="500"/>
+<img src="docs/az-pitometer.png" width="500"/>
 
 # Demo Web apps
 
 Demo app will be reachable @ listed URL.
 
-<img src="images/az-webapp.png" width="500"/>
+<img src="docs/az-webapp.png" width="500"/>
 
 # Logic app
 
 Logic app will be reachable the access endpoint found in the properties.
 
-<img src="images/az-logicapp.png" width="500"/>
+<img src="docs/az-logicapp.png" width="500"/>
 
 # Pitometer service Testing
 
 A tool like [postman](https://www.getpostman.com/) can be used to make the POST request to test our your PerfSpec file.
 
-<img src="images/postman-header.png" width="500"/>
-<img src="images/postman.png" width="500"/>
+<img src="docs/postman-header.png" width="500"/>
+<img src="docs/postman.png" width="500"/>
 
 # How to provision locally without DevOps pipeline
 
