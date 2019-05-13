@@ -117,7 +117,7 @@ stages:
             displayName: 'Load Test'
             inputs:
               targetType: filePath
-              filePath: $(System.DefaultWorkingDirectory)/extract/loadtest.sh
+              filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/loadtest.sh
               arguments: 'Staging $(azure-resource-prefix)-ubp-demo-app-staging.azurewebsites.net $(loadtest-duration-seconds)'
 
           - task: PowerShell@2

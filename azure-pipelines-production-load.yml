@@ -1,0 +1,35 @@
+# this pipeline run the load test script against production
+# the intended us is to run backgroud traffic 
+#
+# Expects pipeline variables:
+# azure-resource-prefix
+
+# disable the push trigger
+trigger: none
+
+variables:
+
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
+  pitometerImage: robjahn/pitometer-web-service
+  # run for 1 hour
+  durationSeconds: 3600
+
+stages:
+- stage: 
+  displayName: Load Test
+  jobs:  
+  - job: Load Test
+    displayName: Load Test
+    pool:
+      vmImage: $(vmImageName)
+      
+    steps:
+    - task: Bash@3
+    displayName: 'Load Test'
+    inputs:
+      targetType: filePath
+      filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/loadtest.sh
+      arguments: 'Production $(azure-resource-prefix)-ubp-demo-app-production.azurewebsites.net $(durationSeconds)'
+
+ 
