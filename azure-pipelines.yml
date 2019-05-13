@@ -1,4 +1,7 @@
-# this pipeline ........
+# this pipeline will build a zip artifact that is used to deploy to
+# a staging and production web app
+# a dyntrace deployment event is done for both
+# a call to a pitometer web service acts as a quality gate to production
 #
 # Expects pipline variables: 
 # ------ deployment ------
@@ -105,23 +108,7 @@ stages:
 
           - task: PowerShell@2
             displayName: 'Capture Load Test Start Time'
-            inputs:
-              targetType: 'inline'
-              failOnStderr: true
-              script: '$startTime = Get-Date -UFormat %s
-                $startTimeFormatted = Get-Date -UFormat "%x %R"
-                
-                Write-Host "==============================================================="
-                Write-Host "Start Time: "$startTime
-                Write-Host "Start Time Formatted: "$startTimeFormatted
-                Write-Host "==============================================================="
-                
-                Write-Host ("##vso[task.setvariable variable=startTimeFormatted]$startTimeFormatted")
-                Write-Host ("##vso[task.setvariable variable=startTime]$startTime")'
-
-          - task: PowerShell@2
-            displayName: 'Capture Load Test Start Time'
-            enabled: false
+            failOnStderr: true
             inputs:
               targetType: filePath
               filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/captureStartTime.ps1
@@ -135,25 +122,10 @@ stages:
 
           - task: PowerShell@2
             displayName: 'Capture Load Test End Time'
-            enabled: false
+            failOnStderr: true
             inputs:
               targetType: filePath
               filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/captureEndTime.ps1
-
-          - task: PowerShell@2
-            displayName: 'Capture Load Test End Time'
-            targetType: 'inline'
-            failOnStderr: true
-            script: '$endTime = Get-Date -UFormat %s
-              $endTimeFormatted = Get-Date -UFormat "%x %R"
-
-              Write-Host "==============================================================="
-              Write-Host "End Time: "$endTime
-              Write-Host "End Time Formatted: "$endTimeFormatted
-              Write-Host "==============================================================="
-
-              Write-Host ("##vso[task.setvariable variable=endTimeFormatted]$endTimeFormatted")
-              Write-Host ("##vso[task.setvariable variable=endTime]$endTime")'
 
           - task: PowerShell@2
             displayName: 'Quality Gate call to Pitometer'
