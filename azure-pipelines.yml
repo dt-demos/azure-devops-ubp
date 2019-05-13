@@ -64,7 +64,7 @@ stages:
   jobs:
   - deployment: Deploy
     displayName: Deploy
-    environment: 'demo'
+    environment: 'staging'
     pool: 
       vmImage: $(vmImageName)    
     strategy:
@@ -101,7 +101,7 @@ stages:
             inputs:
               targetType: filePath
               filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/dynatrace-deployment-event.sh
-              arguments: '"$(dynatrace-base-url)" "$(dynatrace-api-url)" Staging $(Release.DefinitionName) $(Release.ReleaseId) $(System.TeamProject) $(System.TeamFoundationCollectionUri)/$(System.TeamProject)_build/results?buildId=$(Build.BuildNumber)'
+              arguments: '"$(dynatrace-base-url)" "$(dynatrace-api-token)" Staging $(Release.DefinitionName) $(Release.ReleaseId) $(System.TeamProject) $(System.TeamFoundationCollectionUri)/$(System.TeamProject)_build/results?buildId=$(Build.BuildNumber)'
 
           - task: AzurePowerShell@4
             inputs:
@@ -151,7 +151,7 @@ stages:
   jobs:
   - deployment: Deploy
     displayName: Deploy
-    environment: 'demo'
+    environment: 'production'
     pool: 
       vmImage: $(vmImageName)    
     strategy:
@@ -186,4 +186,4 @@ stages:
             inputs:
               targetType: filePath
               filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/dynatrace-deployment-event.sh
-              arguments: '"$(dynatrace-base-url)" "$(dynatrace-api-url)" Production $(Release.DefinitionName) $(Release.ReleaseId) $(System.TeamProject) $(System.TeamFoundationCollectionUri)/$(System.TeamProject)_build/results?buildId=$(Build.BuildNumber)'
+              arguments: '"$(dynatrace-base-url)" "$(dynatrace-api-token)" Production $(Release.DefinitionName) $(Release.ReleaseId) $(System.TeamProject) $(System.TeamFoundationCollectionUri)/$(System.TeamProject)_build/results?buildId=$(Build.BuildNumber)'
