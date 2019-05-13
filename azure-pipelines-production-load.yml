@@ -29,7 +29,7 @@ stages:
       displayName: 'Load Test'
       inputs:
         targetType: filePath
-        filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/loadtest.sh
+        filePath: pipeline/loadtest.sh
         arguments: 'Production $(azure-resource-prefix)-ubp-demo-app-production.azurewebsites.net $(durationSeconds)'
 
  
