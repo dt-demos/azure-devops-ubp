@@ -1,0 +1,35 @@
+# Expects variable: ‘username’
+# Expects variable: ‘location’
+# Expects variable: ‘location-code’
+# Expects variable: ‘pitometer-image’
+# Expects variable: ‘subscription-id’
+# Expects variable: ‘dynatrace-environment-id’
+# Expects variable: ‘dynatrace-paas-token’
+# Expects variable: ‘dynatrace-api-token’
+# Expects variable: ‘dynatrace-base-url’
+
+# disable the push trigger
+trigger: none
+
+variables:
+
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
+
+stages:
+- stage: Provision
+  displayName: Provision Azure resources
+  jobs:  
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: $(vmImageName)
+      
+    steps:
+    - task: AzureCLI@1
+      displayName: 'Provision Demo Resources'
+      inputs:
+        azureSubscription: azure
+        scriptPath: arm/provision.sh
+        arguments: '"$(username)" "$(location)" "$(location-code)" "$(pitometer-image)" "$(subscription-id)" "$(dynatrace-environment-id)" "$(dynatrace-paas-token)" "$(dynatrace-api-token)" "$(dynatrace-base-url)" $(Build.SourcesDirectory)'
+
