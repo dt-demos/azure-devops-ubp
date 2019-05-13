@@ -39,6 +39,7 @@ Required Pipeline variables
 * ```quality-gate-status-override``` = value of 'pass' or 'fail'
 
 Recommend creating a 'Variable Group'
+
 <img src="img/variables.png" width="500"/>
 
 then linking the variable group to each pipeline
