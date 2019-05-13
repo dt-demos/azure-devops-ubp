@@ -5,8 +5,8 @@
 
 # user defined values
 AZURE_RESOURCE_PREFIX="$1"
-RESOURCE_GROUP_LOCATION="$2"
-ARM_LOCATION="$3"
+AZURE_LOCATION="$2"
+AZURE_LOCATION_CODE="$3"
 PITOMETER_IMAGE="$4"
 AZURE_SUBSCRIPTION_NAME="$5"
 DYNATRACE_ENVIONMENT_ID="$6"
@@ -30,8 +30,8 @@ echo "================================================================="
 echo "Provisioning with:"
 echo ""
 echo "AZURE_SUBSCRIPTION_NAME      = $AZURE_SUBSCRIPTION_NAME"
-echo "ARM_LOCATION                 = $ARM_LOCATION"
-echo "RESOURCE_GROUP_LOCATION      = $RESOURCE_GROUP_LOCATION"
+echo "AZURE_LOCATION_CODE          = $AZURE_LOCATION_CODE"
+echo "AZURE_LOCATION               = $AZURE_LOCATION"
 echo "RESOURCE_GROUP_NAME          = $RESOURCE_GROUP_NAME"
 echo "AZURE_RESOURCE_PREFIX        = $AZURE_RESOURCE_PREFIX"
 echo "-----------------------------"
@@ -64,11 +64,11 @@ if [ $? != 0 ]; then
   set -e
   (
     set -x
-    echo "Creating resource group $RESOURCE_GROUP_NAME in $RESOURCE_GROUP_LOCATION"
-    az group create --name "$RESOURCE_GROUP_NAME" --location "$RESOURCE_GROUP_LOCATION"
+    echo "Creating resource group $RESOURCE_GROUP_NAME in $AZURE_LOCATION"
+    az group create --name "$RESOURCE_GROUP_NAME" --location "$AZURE_LOCATION"
   )
   else
-    echo "Using existing resource group $RESOURCE_GROUP_NAME in $RESOURCE_GROUP_LOCATION"
+    echo "Using existing resource group $RESOURCE_GROUP_NAME in $AZURE_LOCATION"
 fi
 
 echo "================================================================="
@@ -116,7 +116,7 @@ echo "Starting deployment for $DEMO_APP_STAGING_NAME"
     --parameters "name=$DEMO_APP_STAGING_NAME" \
     --parameters "hostingPlanName=$APP_SERVICE_PLAN_NAME" \
     --parameters "hostingEnvironment=" \
-    --parameters "location=$ARM_LOCATION" \
+    --parameters "location=$AZURE_LOCATION_CODE" \
     --parameters "serverFarmResourceGroup=$RESOURCE_GROUP_NAME" \
     --parameters "subscriptionId=$AZURE_SUBSCRIPTION_NAME" \
     --parameters "dynatrace-environment-id=$DYNATRACE_ENVIONMENT_ID" \
@@ -142,7 +142,7 @@ echo "Starting deployment for $DEMO_APP_PRODUCTION_NAME"
     --parameters "name=$DEMO_APP_PRODUCTION_NAME" \
     --parameters "hostingPlanName=$APP_SERVICE_PLAN_NAME" \
     --parameters "hostingEnvironment=" \
-    --parameters "location=$ARM_LOCATION" \
+    --parameters "location=$AZURE_LOCATION_CODE" \
     --parameters "serverFarmResourceGroup=$RESOURCE_GROUP_NAME" \
     --parameters "subscriptionId=$AZURE_SUBSCRIPTION_NAME" \
     --parameters "dynatrace-environment-id=$DYNATRACE_ENVIONMENT_ID" \
