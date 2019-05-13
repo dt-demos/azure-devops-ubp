@@ -1,0 +1,43 @@
+{
+    "spec_version": "1.0",
+    "indicators": [
+        {
+        "id": "memstatus_alloc_bytes",
+        "source": "Promethius",
+        "query": {
+            "timeseriesId": "avg(go_gc_duration_seconds(instance='localhost:909')",
+            "aggregation": "total"
+        },
+        "grading": {
+            "type": "Threshold",
+            "thresholds": {
+                "upperSevere":  10485760,
+                "upperWarning": 8388608,
+                "lowerWarning ": 0,
+                "lowerSevere": 0
+            },
+            "metricScore": 20
+        }
+    }, {
+        "id": "AVG_ResponseTime",
+        "source": "Dynatrace",
+        "query": {
+            "timeseriesId": "com.dynatrace.builtin:service.responsetime",
+            "aggregation": "avg"
+        },
+        "grading": {
+            "type": "Threshold",
+            "thresholds": {
+                "upperSevere": 1000,
+                "upperWarning": 5000,
+                "lowerWarning ": 0,
+                "lowerSevere": 0
+            },
+            "metricScore": 80
+        }
+    }],
+    "objectives": {
+        "pass": 100,
+        "warning": 50
+    }
+}
