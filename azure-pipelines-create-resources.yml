@@ -1,12 +1,15 @@
-# Expects variable: ‘username’
-# Expects variable: ‘location’
-# Expects variable: ‘location-code’
-# Expects variable: ‘pitometer-image’
-# Expects variable: ‘subscription-id’
-# Expects variable: ‘dynatrace-environment-id’
-# Expects variable: ‘dynatrace-paas-token’
-# Expects variable: ‘dynatrace-api-token’
-# Expects variable: ‘dynatrace-base-url’
+# this pipeline is be run one-time as to setup the envionment
+# this will just call arm/provision.sh
+#
+# Expects pipline variables:
+# azure-location
+# azure-location-code
+# azure-subscription-name
+# azure-resource-prefix
+# dynatrace-environment-id
+# dynatrace-paas-token
+# dynatrace-api-token
+# dynatrace-base-url
 
 # disable the push trigger
 trigger: none
@@ -15,13 +18,14 @@ variables:
 
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
+  pitometerImage: robjahn/pitometer-web-service
 
 stages:
 - stage: Provision
   displayName: Provision Azure resources
   jobs:  
-  - job: Build
-    displayName: Build
+  - job: Provision
+    displayName: Provision Azure resources
     pool:
       vmImage: $(vmImageName)
       
@@ -31,5 +35,5 @@ stages:
       inputs:
         azureSubscription: azure
         scriptPath: arm/provision.sh
-        arguments: '"$(username)" "$(location)" "$(location-code)" "$(pitometer-image)" "$(subscription-id)" "$(dynatrace-environment-id)" "$(dynatrace-paas-token)" "$(dynatrace-api-token)" "$(dynatrace-base-url)" $(Build.SourcesDirectory)'
+        arguments: '"$(azure-resource-prefix)" "$(azure-location)" "$(azure-location-code)" "$(pitometerImage)" "$(azure-subscription-name)" "$(dynatrace-environment-id)" "$(dynatrace-paas-token)" "$(dynatrace-api-token)" "$(dynatrace-base-url)" $(Build.SourcesDirectory)'
 

@@ -1,12 +1,8 @@
-# Expects variable: ‘username’
-# Expects variable: ‘location’
-# Expects variable: ‘location-code’
-# Expects variable: ‘pitometer-image’
-# Expects variable: ‘subscription-id’
-# Expects variable: ‘dynatrace-environment-id’
-# Expects variable: ‘dynatrace-paas-token’
-# Expects variable: ‘dynatrace-api-token’
-# Expects variable: ‘dynatrace-base-url’
+# this pipeline is be run one-time as to setup the envionment
+# this will just call arm/remove.sh
+#
+# Expects pipline variables: 
+# azure-resource-prefix
 
 # disable the push trigger
 trigger: none
@@ -21,7 +17,7 @@ stages:
   displayName: Delete Azure resources
   jobs:  
   - job: Delete
-    displayName: Delete
+    displayName: Delete Azure resources
     pool:
       vmImage: $(vmImageName)
       
@@ -31,4 +27,4 @@ stages:
       inputs:
         azureSubscription: azure
         scriptPath: arm/remove.sh
-        arguments: '"$(username)"'
+        arguments: '"$(azure-resource-prefix)"'
