@@ -16,7 +16,7 @@ variables:
   durationSeconds: 3600
 
 stages:
-- stage: 
+- stage: Load
   displayName: Load Test
   jobs:  
   - job: Load Test
