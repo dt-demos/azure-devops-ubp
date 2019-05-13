@@ -12,8 +12,8 @@ variables:
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
   pitometerImage: robjahn/pitometer-web-service
-  # run for 1 hour
-  durationSeconds: 3600
+  # run for < 1 hour else hit azure job limit
+  durationSeconds: 3400
 
 stages:
 - stage: Load
