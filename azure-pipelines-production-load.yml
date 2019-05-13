@@ -19,7 +19,7 @@ stages:
 - stage: Load
   displayName: Load Test
   jobs:  
-  - job: Load Test
+  - job: Load
     displayName: Load Test
     pool:
       vmImage: $(vmImageName)
