@@ -23,7 +23,7 @@ variables:
 
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
-  perfspecFilePath: app\perfspec\perfspec.json
+  perfspecFilePath: perfspec\perfspec.json
 
 stages:
 - stage: Build
