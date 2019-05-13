@@ -103,9 +103,10 @@ stages:
               filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/dynatrace-deployment-event.sh
               arguments: '"$(dynatrace-base-url)" "$(dynatrace-api-token)" Staging $(Release.DefinitionName) $(Release.ReleaseId) $(System.TeamProject) $(System.TeamFoundationCollectionUri)/$(System.TeamProject)_build/results?buildId=$(Build.BuildNumber)'
 
-          - task: AzurePowerShell@4
+          - task: PowerShell@2
+            displayName: 'Capture Load Test Start Time'
             inputs:
-              ScriptType: 'InlineScript'
+              ScriptType: 'inline'
               Inline: '$startTime = Get-Date -UFormat %s
                 $startTimeFormatted = Get-Date -UFormat "%x %R"
                 
@@ -133,9 +134,24 @@ stages:
 
           - task: PowerShell@2
             displayName: 'Capture Load Test End Time'
+            enabled: false
             inputs:
               targetType: filePath
               filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/captureEndTime.ps1
+
+          - task: PowerShell@2
+            displayName: 'Capture Load Test End Time'
+            ScriptType: 'inline'
+            Inline: '$endTime = Get-Date -UFormat %s
+              $endTimeFormatted = Get-Date -UFormat "%x %R"
+
+              Write-Host "==============================================================="
+              Write-Host "End Time: "$endTime
+              Write-Host "End Time Formatted: "$endTimeFormatted
+              Write-Host "==============================================================="
+
+              Write-Host ("##vso[task.setvariable variable=endTimeFormatted]$endTimeFormatted")
+              Write-Host ("##vso[task.setvariable variable=endTime]$endTime")'
 
           - task: PowerShell@2
             displayName: 'Quality Gate call to Pitometer'
