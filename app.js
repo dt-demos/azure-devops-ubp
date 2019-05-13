@@ -39,7 +39,7 @@ var init = function(newProblemNumber) {
 	// 1 | no problem
 	// 2 | 50% of requests return HTTP 500 Status Code
 	// 3 | back to normal
-	// 4 | no problem in staging but problem in prod -> higher sleep time and 10% of requests fail
+	// 4 | no problem in staging but problem in prod -> higher sleep time and 25% of requests fail
 	// X | any other problem number will run like 1 & 3
 	if(newProblemNumber != null) {
 		problemNumber = parseInt(newProblemNumber);
@@ -50,12 +50,12 @@ var init = function(newProblemNumber) {
 
 	switch(problemNumber) {
 		case 2:
-			failInvokeRequestPercentage = 2;
+			failInvokeRequestPercentage = 50;
 			break;
 		case 4: 
 			if(inProduction) {
 				minSleep = minSleep * 2;
-				failInvokeRequestPercentage = 10;
+				failInvokeRequestPercentage = 25;
 			}
 			break;
 		default:
