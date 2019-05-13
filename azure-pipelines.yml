@@ -106,8 +106,9 @@ stages:
           - task: PowerShell@2
             displayName: 'Capture Load Test Start Time'
             inputs:
-              ScriptType: 'inline'
-              Inline: '$startTime = Get-Date -UFormat %s
+              targetType: 'inline'
+              failOnStderr: true
+              script: '$startTime = Get-Date -UFormat %s
                 $startTimeFormatted = Get-Date -UFormat "%x %R"
                 
                 Write-Host "==============================================================="
@@ -141,8 +142,9 @@ stages:
 
           - task: PowerShell@2
             displayName: 'Capture Load Test End Time'
-            ScriptType: 'inline'
-            Inline: '$endTime = Get-Date -UFormat %s
+            targetType: 'inline'
+            failOnStderr: true
+            script: '$endTime = Get-Date -UFormat %s
               $endTimeFormatted = Get-Date -UFormat "%x %R"
 
               Write-Host "==============================================================="
@@ -157,6 +159,7 @@ stages:
             displayName: 'Quality Gate call to Pitometer'
             inputs:
               targetType: filePath
+              failOnStderr: true
               filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/qualitygate.ps1
               arguments: '$(startTime) $(endTime) $(pitometer-url) /home/vsts/work/1/s/extract/$(perfspecFilePath) $(quality-gate-status-override)'
 
