@@ -1,7 +1,20 @@
-# Node.js Express Web App on Linux
-# Build a Node.js Express app and deploy it as a Linux web app.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+# this pipeline will build a zip artifact that is used to deploy to
+# a staging and production web app
+# a dyntrace deployment event is done for both
+# a call to a pitometer web service acts as a quality gate to production
+#
+# Expects pipline variables: 
+# ------ deployment ------
+# azure-subscription-name
+# app-problem-number
+# ------ dt events ------
+# dynatrace-base-url
+# dynatrace-api-url
+# ------ load testing ------
+# loadtest-duration-seconds
+# ------ quality gates ------
+# pitometer-url
+# quality-gate-status-override
 
 # disable the push trigger
 trigger: none
@@ -10,6 +23,7 @@ variables:
 
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
+  perfspecFilePath: perfspec\perfspec.json
 
 stages:
 - stage: Build
@@ -53,7 +67,7 @@ stages:
   jobs:
   - deployment: Deploy
     displayName: Deploy
-    environment: 'demo'
+    environment: 'staging'
     pool: 
       vmImage: $(vmImageName)    
     strategy:
@@ -67,56 +81,63 @@ stages:
               downloadPath: '$(System.ArtifactsDirectory)' 
 
           - task: ExtractFiles@1
+            displayName: 'Extract Files'
             inputs:
               archiveFilePatterns: '$(Build.ArtifactStagingDirectory)/*.zip'
               destinationFolder: '$(System.DefaultWorkingDirectory)/extract'
               cleanDestinationFolder: true
 
-          - bash: 'ls -l $(System.DefaultWorkingDirectory)/extract'
-            displayName: 'ls DefaultWorkingDirectory extract'
-
           - task: AzureRmWebAppDeployment@4
             displayName: 'Deploy Staging'
             enabled: true
             inputs:
-              azureSubscription: $(azureSubscription)
-              WebAppName: $(stagingDemoWebapp)
+              azureSubscription: $(azure-subscription-name)
+              WebAppName: $(azure-resource-prefix)-ubp-demo-app-staging
               packageForLinux: $(System.ArtifactsDirectory)/drop/$(Build.BuildId).zip
               WebConfigParameters: '-Handler iisnode -NodeStartFile app.js -appType node'
-              AppSettings: '-DEPLOYMENT_GROUP_NAME Staging -PROBLEM_NUMBER $(appProblemNumber)'
+              AppSettings: '-DEPLOYMENT_GROUP_NAME Staging -PROBLEM_NUMBER $(app-problem-number)'
 
           - task: Bash@3
             displayName: 'Dynatrace Deployment Event'
             inputs:
               targetType: filePath
               filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/dynatrace-deployment-event.sh
-              arguments: '"$(dynatraceBaseUrl)" "$(dynatraceApiToken)" Staging $(Release.DefinitionName) $(Release.ReleaseId) $(System.TeamProject) $(System.TeamFoundationCollectionUri)/$(System.TeamProject)_build/results?buildId=$(Build.BuildNumber)'
+              arguments: '"$(dynatrace-base-url)" "$(dynatrace-api-token)" Staging $(Release.DefinitionName) $(Release.ReleaseId) $(System.TeamProject) $(System.TeamFoundationCollectionUri)/$(System.TeamProject)_build/results?buildId=$(Build.BuildNumber)'
 
           - task: PowerShell@2
             displayName: 'Capture Load Test Start Time'
+            failOnStderr: true
             inputs:
               targetType: filePath
               filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/captureStartTime.ps1
+
+          - bash: 'date +%s'
+            displayName: 'start time'
 
           - task: Bash@3
             displayName: 'Load Test'
             inputs:
               targetType: filePath
-              filePath: $(System.DefaultWorkingDirectory)/extract/loadtest.sh
-              arguments: 'Staging $(demoWebappStagingUrl) $(loadtestDurationSeconds)'
+              filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/loadtest.sh
+              arguments: 'Staging $(azure-resource-prefix)-ubp-demo-app-staging.azurewebsites.net $(loadtest-duration-seconds)'
 
           - task: PowerShell@2
             displayName: 'Capture Load Test End Time'
+            failOnStderr: true
             inputs:
               targetType: filePath
               filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/captureEndTime.ps1
+
+          - bash: 'date +%s'
+            displayName: 'end time'
 
           - task: PowerShell@2
             displayName: 'Quality Gate call to Pitometer'
             inputs:
               targetType: filePath
+              failOnStderr: true
               filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/qualitygate.ps1
-              arguments: '$(startTime) $(endTime) $(pitometerUrl) /home/vsts/work/1/s/extract/$(perfspecFile) $(fakeQualityGateStatus)'
+              arguments: '$(startTime) $(endTime) $(pitometer-url) /home/vsts/work/1/s/extract/$(perfspecFilePath) $(quality-gate-status-override)'
 
 - stage: Deploy_Production
   displayName: Deploy to production
@@ -125,7 +146,7 @@ stages:
   jobs:
   - deployment: Deploy
     displayName: Deploy
-    environment: 'demo'
+    environment: 'production'
     pool: 
       vmImage: $(vmImageName)    
     strategy:
@@ -140,6 +161,7 @@ stages:
               downloadPath: '$(System.ArtifactsDirectory)' 
 
           - task: ExtractFiles@1
+            displayName: 'Extract Files'
             inputs:
               archiveFilePatterns: '$(Build.ArtifactStagingDirectory)/*.zip'
               destinationFolder: '$(System.DefaultWorkingDirectory)/extract'
@@ -149,15 +171,15 @@ stages:
             displayName: 'Deploy production'
             enabled: true
             inputs:
-              azureSubscription: $(azureSubscription)
-              WebAppName: $(productionDemoWebapp)
+              azureSubscription: $(azure-subscription-name)
+              WebAppName: $(azure-resource-prefix)-ubp-demo-app-production
               packageForLinux: $(System.ArtifactsDirectory)/drop/$(Build.BuildId).zip
               WebConfigParameters: '-Handler iisnode -NodeStartFile app.js -appType node'
-              AppSettings: '-DEPLOYMENT_GROUP_NAME Production -PROBLEM_NUMBER $(appProblemNumber)'
+              AppSettings: '-DEPLOYMENT_GROUP_NAME Production -PROBLEM_NUMBER $(app-problem-number)'
 
           - task: Bash@3
             displayName: 'Dynatrace Deployment Event'
             inputs:
               targetType: filePath
               filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/dynatrace-deployment-event.sh
-              arguments: '"$(dynatraceBaseUrl)" "$(dynatraceApiToken)" Production $(Release.DefinitionName) $(Release.ReleaseId) $(System.TeamProject) $(System.TeamFoundationCollectionUri)/$(System.TeamProject)_build/results?buildId=$(Build.BuildNumber)'
+              arguments: '"$(dynatrace-base-url)" "$(dynatrace-api-token)" Production $(Release.DefinitionName) $(Release.ReleaseId) $(System.TeamProject) $(System.TeamFoundationCollectionUri)/$(System.TeamProject)_build/results?buildId=$(Build.BuildNumber)'

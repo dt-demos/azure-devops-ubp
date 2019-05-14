@@ -5,7 +5,18 @@
         "source": "Dynatrace",
         "query": {
             "timeseriesId": "com.dynatrace.builtin:service.responsetime",
-            "aggregation": "p90"
+            "aggregation": "p90",
+            "tags": [ {
+                "context": "CONTEXTLESS",
+                "key": "environment",
+                "value": "Staging"
+              },
+              {
+              "context": "CONTEXTLESS",
+              "key": "service",
+              "value": "SampleNodeJsService"
+              }
+            ]
         },
         "grading": {
             "type": "Threshold",
@@ -15,14 +26,25 @@
                 "lowerWarning ": 0,
                 "lowerSevere": 0
             },
-            "metricScore": 20
+            "metricScore": 25
         }
     }, {
         "id": "AVG_ResponseTime",
         "source": "Dynatrace",
         "query": {
             "timeseriesId": "com.dynatrace.builtin:service.responsetime",
-            "aggregation": "avg"
+            "aggregation": "avg",
+            "tags": [ {
+                "context": "CONTEXTLESS",
+                "key": "environment",
+                "value": "Staging"
+              },
+              {
+              "context": "CONTEXTLESS",
+              "key": "service",
+              "value": "SampleNodeJsService"
+              }
+            ]
         },
         "grading": {
             "type": "Threshold",
@@ -32,11 +54,40 @@
                 "lowerWarning ": 0,
                 "lowerSevere": 0
             },
-            "metricScore": 80
+            "metricScore": 25
         }
-    }],
+    }, {
+        "id": "AVG_FailureRate",
+        "source": "Dynatrace",
+        "query": {
+            "timeseriesId": "com.dynatrace.builtin:service.failurerate",
+            "aggregation": "avg",
+            "tags": [ {
+                "context": "CONTEXTLESS",
+                "key": "environment",
+                "value": "Staging"
+              },
+              {
+              "context": "CONTEXTLESS",
+              "key": "service",
+              "value": "SampleNodeJsService"
+              }
+            ]
+        },
+        "grading": {
+            "type": "Threshold",
+            "thresholds": {
+                "upperSevere": 25,
+                "upperWarning": 5,
+                "lowerWarning ": 0,
+                "lowerSevere": 0
+            },
+            "metricScore": 50
+        }
+    }
+    ],
     "objectives": {
         "pass": 100,
-        "warning": 50
+        "warning": 25
     }
 }

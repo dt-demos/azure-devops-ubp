@@ -1,14 +1,14 @@
 # script to provision demo azure infrastrucure
 # define variables and call this script with
 # these arguments
-# "$(username)" "$(location)" "$(location-code)" "$(pitometer-image)" "$(subscription-id)" "$(dynatrace-environment-id)" "$(dynatrace-paas-token)" "$(dynatrace-api-token)" "$(dynatrace-base-url)" $(Build.SourcesDirectory)
+# "$(azure-resource-prefix)" "$(location)" "$(location-code)" "$(pitometer-image)" "$(azure-subscription-name)" "$(dynatrace-environment-id)" "$(dynatrace-paas-token)" "$(dynatrace-api-token)" "$(dynatrace-base-url)" $(Build.SourcesDirectory)
 
 # user defined values
-USER_NAME="$1"
-RESOURCE_GROUP_LOCATION="$2"
-ARM_LOCATION="$3"
+AZURE_RESOURCE_PREFIX="$1"
+AZURE_LOCATION="$2"
+AZURE_LOCATION_CODE="$3"
 PITOMETER_IMAGE="$4"
-SUBSCRIPTION_ID="$5"
+AZURE_SUBSCRIPTION_NAME="$5"
 DYNATRACE_ENVIONMENT_ID="$6"
 DYNATRACE_PAAS_TOKEN="$7"
 DYNATRACE_API_TOKEN="$8"
@@ -16,12 +16,12 @@ DYNATRACE_BASE_URL="$9"
 BUILD_SOURCE_DIR="${10}"
 
 # auto-generated values
-RESOURCE_GROUP_NAME=$USER_NAME-ubp-demo-rg
-APP_SERVICE_PLAN_NAME=$USER_NAME-ubp-demo-plan
-PITOMETER_APP_NAME=$USER_NAME-ubp-demo-pitometer
-DEMO_APP_STAGING_NAME=$USER_NAME-ubp-demo-app-staging
-DEMO_APP_PRODUCTION_NAME=$USER_NAME-ubp-demo-app-production
-LOGIC_APP_NAME=$USER_NAME-ubp-demo-logic-app-self-healing
+RESOURCE_GROUP_NAME=$AZURE_RESOURCE_PREFIX-ubp-demo-rg
+APP_SERVICE_PLAN_NAME=$AZURE_RESOURCE_PREFIX-ubp-demo-plan
+PITOMETER_APP_NAME=$AZURE_RESOURCE_PREFIX-ubp-demo-pitometer
+DEMO_APP_STAGING_NAME=$AZURE_RESOURCE_PREFIX-ubp-demo-app-staging
+DEMO_APP_PRODUCTION_NAME=$AZURE_RESOURCE_PREFIX-ubp-demo-app-production
+LOGIC_APP_NAME=$AZURE_RESOURCE_PREFIX-ubp-demo-logic-app-self-healing
 DYNATRACE_API_URL=$DYNATRACE_BASE_URL/e/$DYNATRACE_ENVIONMENT_ID/api
 DEMO_APP_TEMPLATE_FILE_PATH=$BUILD_SOURCE_DIR/arm/webapp-template.json
 LOGIC_APP_TEMPLATE_FILE_PATH=$BUILD_SOURCE_DIR/arm/logicapp-template.json
@@ -29,23 +29,28 @@ LOGIC_APP_TEMPLATE_FILE_PATH=$BUILD_SOURCE_DIR/arm/logicapp-template.json
 echo "================================================================="
 echo "Provisioning with:"
 echo ""
-echo "USER_NAME                    = $USER_NAME"
-echo "RESOURCE_GROUP_LOCATION      = $RESOURCE_GROUP_LOCATION"
-echo "ARM_LOCATION                 = $ARM_LOCATION"
-echo "PITOMETER_IMAGE              = $PITOMETER_IMAGE"
-echo "SUBSCRIPTION_ID              = $SUBSCRIPTION_ID"
+echo "AZURE_SUBSCRIPTION_NAME      = $AZURE_SUBSCRIPTION_NAME"
+echo "AZURE_LOCATION_CODE          = $AZURE_LOCATION_CODE"
+echo "AZURE_LOCATION               = $AZURE_LOCATION"
+echo "RESOURCE_GROUP_NAME          = $RESOURCE_GROUP_NAME"
+echo "AZURE_RESOURCE_PREFIX        = $AZURE_RESOURCE_PREFIX"
+echo "-----------------------------"
 echo "DYNATRACE_ENVIONMENT_ID      = $DYNATRACE_ENVIONMENT_ID"
 echo "DYNATRACE_BASE_URL           = $DYNATRACE_BASE_URL"
 echo "DYNATRACE_API_URL            = $DYNATRACE_API_URL"
-echo "RESOURCE_GROUP_NAME          = $RESOURCE_GROUP_NAME"
-echo "APP_SERVICE_PLAN_NAME        = $APP_SERVICE_PLAN_NAME"
+echo "-----------------------------"
 echo "PITOMETER_APP_NAME           = $PITOMETER_APP_NAME"
+echo "PITOMETER_IMAGE              = $PITOMETER_IMAGE"
+echo "-----------------------------"
+echo "APP_SERVICE_PLAN_NAME        = $APP_SERVICE_PLAN_NAME"
+echo "DEMO_APP_TEMPLATE_FILE_PATH  = $DEMO_APP_TEMPLATE_FILE_PATH"
 echo "DEMO_APP_STAGING_NAME        = $DEMO_APP_STAGING_NAME"
 echo "DEMO_APP_PRODUCTION_NAME     = $DEMO_APP_PRODUCTION_NAME"
+echo "-----------------------------"
 echo "LOGIC_APP_NAME               = $LOGIC_APP_NAME"
-echo "DEMO_APP_TEMPLATE_FILE_PATH  = $DEMO_APP_TEMPLATE_FILE_PATH"
 echo "LOGIC_APP_TEMPLATE_FILE_PATH = $LOGIC_APP_TEMPLATE_FILE_PATH"
 echo "================================================================="
+echo "Pipeline source files within $BUILD_SOURCE_DIR"
 ls -l $BUILD_SOURCE_DIR
 echo "================================================================="
 
@@ -59,11 +64,11 @@ if [ $? != 0 ]; then
   set -e
   (
     set -x
-    echo "Creating resource group $RESOURCE_GROUP_NAME in $RESOURCE_GROUP_LOCATION"
-    az group create --name "$RESOURCE_GROUP_NAME" --location "$RESOURCE_GROUP_LOCATION"
+    echo "Creating resource group $RESOURCE_GROUP_NAME in $AZURE_LOCATION"
+    az group create --name "$RESOURCE_GROUP_NAME" --location "$AZURE_LOCATION"
   )
   else
-    echo "Using existing resource group $RESOURCE_GROUP_NAME in $RESOURCE_GROUP_LOCATION"
+    echo "Using existing resource group $RESOURCE_GROUP_NAME in $AZURE_LOCATION"
 fi
 
 echo "================================================================="
@@ -111,9 +116,9 @@ echo "Starting deployment for $DEMO_APP_STAGING_NAME"
     --parameters "name=$DEMO_APP_STAGING_NAME" \
     --parameters "hostingPlanName=$APP_SERVICE_PLAN_NAME" \
     --parameters "hostingEnvironment=" \
-    --parameters "location=$ARM_LOCATION" \
+    --parameters "location=$AZURE_LOCATION_CODE" \
     --parameters "serverFarmResourceGroup=$RESOURCE_GROUP_NAME" \
-    --parameters "subscriptionId=$SUBSCRIPTION_ID" \
+    --parameters "subscriptionId=$AZURE_SUBSCRIPTION_NAME" \
     --parameters "dynatrace-environment-id=$DYNATRACE_ENVIONMENT_ID" \
     --parameters "dynatrace-paas-token=$DYNATRACE_PAAS_TOKEN" \
     --parameters "dynatrace-api-url=$DYNATRACE_API_URL" \
@@ -137,9 +142,9 @@ echo "Starting deployment for $DEMO_APP_PRODUCTION_NAME"
     --parameters "name=$DEMO_APP_PRODUCTION_NAME" \
     --parameters "hostingPlanName=$APP_SERVICE_PLAN_NAME" \
     --parameters "hostingEnvironment=" \
-    --parameters "location=$ARM_LOCATION" \
+    --parameters "location=$AZURE_LOCATION_CODE" \
     --parameters "serverFarmResourceGroup=$RESOURCE_GROUP_NAME" \
-    --parameters "subscriptionId=$SUBSCRIPTION_ID" \
+    --parameters "subscriptionId=$AZURE_SUBSCRIPTION_NAME" \
     --parameters "dynatrace-environment-id=$DYNATRACE_ENVIONMENT_ID" \
     --parameters "dynatrace-paas-token=$DYNATRACE_PAAS_TOKEN" \
     --parameters "dynatrace-api-url=$DYNATRACE_API_URL" \
