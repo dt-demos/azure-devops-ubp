@@ -78,7 +78,7 @@
             "type": "Threshold",
             "ignoreEmpty": true,
             "thresholds": {
-                "upperSevere": 25,
+                "upperSevere": 10,
                 "upperWarning": 5,
                 "lowerWarning ": 0,
                 "lowerSevere": 0
