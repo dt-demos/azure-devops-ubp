@@ -81,13 +81,11 @@ stages:
               downloadPath: '$(System.ArtifactsDirectory)' 
 
           - task: ExtractFiles@1
+            displayName: 'Extract Files'
             inputs:
               archiveFilePatterns: '$(Build.ArtifactStagingDirectory)/*.zip'
               destinationFolder: '$(System.DefaultWorkingDirectory)/extract'
               cleanDestinationFolder: true
-
-          - bash: 'ls -l $(System.DefaultWorkingDirectory)/extract'
-            displayName: 'ls DefaultWorkingDirectory extract'
 
           - task: AzureRmWebAppDeployment@4
             displayName: 'Deploy Staging'
@@ -113,6 +111,9 @@ stages:
               targetType: filePath
               filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/captureStartTime.ps1
 
+          - bash: 'date +%s'
+            displayName: 'start time'
+
           - task: Bash@3
             displayName: 'Load Test'
             inputs:
@@ -126,6 +127,9 @@ stages:
             inputs:
               targetType: filePath
               filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/captureEndTime.ps1
+
+          - bash: 'date +%s'
+            displayName: 'end time'
 
           - task: PowerShell@2
             displayName: 'Quality Gate call to Pitometer'
@@ -157,6 +161,7 @@ stages:
               downloadPath: '$(System.ArtifactsDirectory)' 
 
           - task: ExtractFiles@1
+          displayName: 'Extract Files'
             inputs:
               archiveFilePatterns: '$(Build.ArtifactStagingDirectory)/*.zip'
               destinationFolder: '$(System.DefaultWorkingDirectory)/extract'
