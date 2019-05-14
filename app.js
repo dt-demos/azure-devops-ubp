@@ -55,7 +55,7 @@ var init = function(newProblemNumber) {
 		case 4: 
 			if(inProduction) {
 				minSleep = minSleep * 2;
-				failInvokeRequestPercentage = 25;
+				failInvokeRequestPercentage = 50;
 			}
 			break;
 		default:
@@ -184,13 +184,15 @@ var server = http.createServer(function (req, res) {
 		if(url.pathname === "/api/invoke") {
 			// count the invokes for failed requests
 			var returnStatusCode = 200;
-			if(failInvokeRequestPercentage > 0) {
-				invokeRequestCount++;
-				var failRequest = (invokeRequestCount % failInvokeRequestPercentage);
-				if(failRequest == 0) {
-					returnStatusCode = 500;
-					invokeRequestCount = 0;
-				}
+			var randNum = Math.floor((Math.random() * 100) + 1);
+			if( randNum <= failInvokeRequestPercentage ) {
+				returnStatusCode = 500;
+				//invokeRequestCount++;
+				//var failRequest = (invokeRequestCount % failInvokeRequestPercentage);
+				//if(failRequest == 0) {
+				//	returnStatusCode = 500;
+				//	invokeRequestCount = 0;
+				//}
 			}
 
 			// Usage: /api/invoke?url=http://www.yourdomain.com 
