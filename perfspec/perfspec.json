@@ -76,6 +76,7 @@
         },
         "grading": {
             "type": "Threshold",
+            "ignoreEmpty": true,
             "thresholds": {
                 "upperSevere": 25,
                 "upperWarning": 5,

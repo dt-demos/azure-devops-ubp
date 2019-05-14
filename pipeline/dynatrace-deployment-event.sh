@@ -1,7 +1,7 @@
 # script to send an create Dynatrace deployment API call 
 # define variables and call this script with
 # these arguments
-# "$(dynatrace-base-url)" "$(dynatrace-api-token)" Staging "$(Release.DefinitionName)" "$(app-problem-number)" $(System.TeamProject) $(Release.ReleaseWebURL)
+# "$(dynatrace-base-url)" "$(dynatrace-api-token)" Production $(Build.DefinitionName) $(app-problem-number) $(System.TeamProject) $(System.TeamFoundationCollectionUri)/$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)'
 
 DYNATRACE_BASE_URL="$1"
 DYNATRACE_API_TOKEN="$2"
@@ -49,5 +49,5 @@ POST_DATA=$(cat <<EOF
         }
     }
 EOF)
-
+echo $POST_DATA
 curl --url "$DYNATRACE_API_URL" -H "Content-type: application/json" -H "Authorization: Api-Token "$DYNATRACE_API_TOKEN -X POST -d "$POST_DATA"
