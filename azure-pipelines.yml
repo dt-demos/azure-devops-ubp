@@ -161,7 +161,7 @@ stages:
               downloadPath: '$(System.ArtifactsDirectory)' 
 
           - task: ExtractFiles@1
-          displayName: 'Extract Files'
+            displayName: 'Extract Files'
             inputs:
               archiveFilePatterns: '$(Build.ArtifactStagingDirectory)/*.zip'
               destinationFolder: '$(System.DefaultWorkingDirectory)/extract'
