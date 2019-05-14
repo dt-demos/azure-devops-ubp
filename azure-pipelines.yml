@@ -111,9 +111,6 @@ stages:
               targetType: filePath
               filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/captureStartTime.ps1
 
-          - bash: 'date +%s'
-            displayName: 'start time'
-
           - task: Bash@3
             displayName: 'Load Test'
             inputs:
@@ -127,9 +124,6 @@ stages:
             inputs:
               targetType: filePath
               filePath: $(System.DefaultWorkingDirectory)/extract/pipeline/captureEndTime.ps1
-
-          - bash: 'date +%s'
-            displayName: 'end time'
 
           - task: PowerShell@2
             displayName: 'Quality Gate call to Pitometer'
