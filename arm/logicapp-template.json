@@ -18,12 +18,126 @@
                 "state": "Enabled",
                 "definition": {
                     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "actions": {
+                        "DynatraceToken": {
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "DynatraceToken",
+                                        "type": "String"
+                                    }
+                                ]
+                            },
+                            "runAfter": {
+                                "DynatraceUrl": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable"
+                        },
+                        "DynatraceUrl": {
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "DynatraceUrl",
+                                        "type": "String"
+                                    }
+                                ]
+                            },
+                            "runAfter": {},
+                            "type": "InitializeVariable"
+                        },
+                        "Is_this_an_OPEN_problem_and_Not_a_Test_Problem_": {
+                            "actions": {
+                                "Revert_to_Problem_1": {
+                                    "inputs": {
+                                        "method": "GET",
+                                        "uri": "@{variables('ProductionAppUrl')}/api/problem?newProblemNumber=1"
+                                    },
+                                    "runAfter": {
+                                        "Update_Dynatrace_Problem": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Http"
+                                },
+                                "Update_Dynatrace_Problem": {
+                                    "inputs": {
+                                        "body": {
+                                            "comment": "Reverting Production",
+                                            "context": "Logic App"
+                                        },
+                                        "headers": {
+                                            "Authorization": "Api-token @{variables('DynatraceToken')}",
+                                            "Content-Type": "application/json"
+                                        },
+                                        "method": "POST",
+                                        "uri": "https://@{variables('DynatraceUrl')}/api/v1/problem/details/@{triggerBody()?['PID']}/comments\n"
+                                    },
+                                    "runAfter": {},
+                                    "type": "Http"
+                                }
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@triggerBody()?['State']",
+                                            "OPEN"
+                                        ]
+                                    },
+                                    {
+                                        "not": {
+                                            "equals": [
+                                                "@int(triggerBody()?['PID'])",
+                                                99999
+                                            ]
+                                        }
+                                    }
+                                ]
+                            },
+                            "runAfter": {
+                                "ProductionAppUrl": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Logic_App_Response": {
+                            "inputs": {
+                                "body": "test",
+                                "statusCode": 200
+                            },
+                            "kind": "Http",
+                            "runAfter": {
+                                "Is_this_an_OPEN_problem_and_Not_a_Test_Problem_": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Response"
+                        },
+                        "ProductionAppUrl": {
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "ProductionAppUrl",
+                                        "type": "String"
+                                    }
+                                ]
+                            },
+                            "runAfter": {
+                                "DynatraceToken": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable"
+                        }
+                    },
                     "contentVersion": "1.0.0.0",
+                    "outputs": {},
                     "parameters": {},
                     "triggers": {
                         "manual": {
-                            "type": "Request",
-                            "kind": "Http",
                             "inputs": {
                                 "schema": {
                                     "properties": {
@@ -60,91 +174,11 @@
                                     },
                                     "type": "object"
                                 }
-                            }
-                        }
-                    },
-                    "actions": {
-                        "Condition": {
-                            "actions": {
-                                "HTTP": {
-                                    "runAfter": {},
-                                    "type": "Http",
-                                    "inputs": {
-                                        "body": {
-                                            "comment": "Created Work Item",
-                                            "context": "Logic App",
-                                            "user": "Azure DevOps"
-                                        },
-                                        "headers": {
-                                            "Authorization": "Api-token @{variables('DynatraceToken')}",
-                                            "Content-Type": "application/json"
-                                        },
-                                        "method": "POST",
-                                        "uri": "https://@{variables('DynatraceUrl')}/api/v1/problem/details/@{triggerBody()?['PID']}/comments\n"
-                                    }
-                                }
                             },
-                            "runAfter": {
-                                "DynatraceToken": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "expression": {
-                                "and": [
-                                    {
-                                        "equals": [
-                                            "@triggerBody()?['State']",
-                                            "OPEN"
-                                        ]
-                                    }
-                                ]
-                            },
-                            "type": "If"
-                        },
-                        "DynatraceToken": {
-                            "runAfter": {
-                                "DynatraceUrl": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "InitializeVariable",
-                            "inputs": {
-                                "variables": [
-                                    {
-                                        "name": "DynatraceToken",
-                                        "type": "String"
-                                    }
-                                ]
-                            }
-                        },
-                        "DynatraceUrl": {
-                            "runAfter": {},
-                            "type": "InitializeVariable",
-                            "inputs": {
-                                "variables": [
-                                    {
-                                        "name": "DynatraceUrl",
-                                        "type": "String",
-                                        "value": "test@{triggerBody()?['PID']}"
-                                    }
-                                ]
-                            }
-                        },
-                        "Response": {
-                            "runAfter": {
-                                "Condition": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Response",
                             "kind": "Http",
-                            "inputs": {
-                                "body": "Logic application complete for problem: @{triggerBody()?['PID']}",
-                                "statusCode": 200
-                            }
+                            "type": "Request"
                         }
-                    },
-                    "outputs": {}
+                    }
                 },
                 "parameters": {}
             }
