@@ -30,6 +30,6 @@ stages:
       inputs:
         targetType: filePath
         filePath: pipeline/loadtest.sh
-        arguments: 'Staging $(azure-resource-prefix)-ubp-demo-app-staging.azurewebsites.net $(durationSeconds)'
+        arguments: 'Production $(azure-resource-prefix)-ubp-demo-app-production.azurewebsites.net $(durationSeconds)'
 
  
